@@ -1,0 +1,161 @@
+{
+  "asOf": "2026-03-09T10:32:56.050Z",
+  "method": "ratio = (avg perp volume over last 7d + avg open interest over last 7d) / FDV",
+  "medianRatio": null,
+  "projects": [
+    {
+      "name": "Hyperliquid",
+      "slug": "hyperliquid",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/hyperliquid?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/hyperliquid?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/hyperliquid?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Aster",
+      "slug": "aster",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/aster?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/aster?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/aster?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Lighter",
+      "slug": "lighter",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/lighter?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/lighter?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/lighter?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Avantis",
+      "slug": "avantis",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/avantis?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/avantis?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/avantis?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "GMX",
+      "slug": "gmx",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/gmx?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/gmx?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/gmx?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "dYdX",
+      "slug": "dydx",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/dydx?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/dydx?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/dydx?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Paradex",
+      "slug": "paradex",
+      "token": true,
+      "logo": "https://icons.llamao.fi/icons/protocols/paradex?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/paradex?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/paradex?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Variational",
+      "slug": "variational",
+      "token": false,
+      "logo": "https://icons.llamao.fi/icons/protocols/variational?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/variational?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/variational?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "edgeX",
+      "slug": "edgex",
+      "token": false,
+      "logo": "https://icons.llamao.fi/icons/protocols/edgex?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/edgex?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/edgex?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Pacifica",
+      "slug": "pacifica",
+      "token": false,
+      "logo": "https://icons.llamao.fi/icons/protocols/pacifica?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/pacifica?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/pacifica?dataType=openInterest"
+      ]
+    },
+    {
+      "name": "Extended",
+      "slug": "extended",
+      "token": false,
+      "logo": "https://icons.llamao.fi/icons/protocols/extended?w=128&h=128",
+      "fdv": null,
+      "avgVolume7d": null,
+      "avgOi7d": null,
+      "ratio": null,
+      "notes": [
+        "volume:429 Too Many Requests https://api.llama.fi/summary/derivatives/extended?dataType=dailyVolume",
+        "oi:429 Too Many Requests https://api.llama.fi/summary/derivatives/extended?dataType=openInterest"
+      ]
+    }
+  ]
+}

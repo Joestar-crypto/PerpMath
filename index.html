@@ -1,0 +1,1395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perps Ratio Map</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+  <style>
+    :root {
+      --bg: #eef4ec;
+      --panel: #f8fcf5;
+      --ink: #16221b;
+      --grid: #d3dacb;
+      --token: #0c9b73;
+      --no-token: #df8431;
+      --median: #c74930;
+      --line: #d3e1d0;
+      --mint-1: #dff6ea;
+      --mint-2: #c4ead7;
+      --warm-1: #fdeed7;
+      --shadow-xl: 0 26px 60px rgba(14, 33, 26, 0.16);
+      --shadow-md: 0 12px 28px rgba(18, 42, 30, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      overflow: hidden;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 16%, #d8f4e5 0%, transparent 42%),
+        radial-gradient(circle at 88% 84%, #fbe7cf 0%, transparent 40%),
+        radial-gradient(circle at 62% 32%, #e4f0df 0%, transparent 45%),
+        var(--bg);
+      padding: 8px;
+      display: grid;
+      place-items: center;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -20%;
+      pointer-events: none;
+      background: conic-gradient(from 0deg at 50% 50%, rgba(13, 155, 115, 0.04), rgba(223, 132, 49, 0.035), rgba(13, 155, 115, 0.04));
+      filter: blur(42px);
+      animation: drift 24s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes drift {
+      from { transform: rotate(0deg) scale(1); }
+      to { transform: rotate(360deg) scale(1.05); }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 98vw;
+      height: 98vh;
+      overflow: hidden;
+      background: linear-gradient(155deg, rgba(253, 255, 251, 0.92) 0%, rgba(242, 250, 238, 0.9) 62%, rgba(255, 248, 235, 0.82) 100%);
+      border: 1px solid rgba(186, 208, 186, 0.9);
+      border-radius: 22px;
+      box-shadow: var(--shadow-xl);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .wrap::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 22px;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+    }
+
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 6px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(248, 252, 246, 0.5));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85), var(--shadow-md);
+      display: flex;
+    }
+
+    .chart-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 12px;
+      align-items: stretch;
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+      padding-top: 8px;
+    }
+
+    .model-help-wrap {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      z-index: 3;
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+    }
+
+    .model-help-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid #9ebaa2;
+      background: linear-gradient(145deg, #f8fff6, #e4f2e3);
+      color: #1d3327;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: help;
+      box-shadow: 0 6px 14px rgba(18, 53, 30, 0.13);
+    }
+
+    .model-help-tip {
+      position: absolute;
+      top: 34px;
+      right: 0;
+      width: min(380px, 78vw);
+      border: 1px solid #bfd4bf;
+      border-radius: 10px;
+      padding: 10px;
+      color: #1b2f24;
+      background: linear-gradient(150deg, rgba(252, 255, 250, 0.98), rgba(232, 245, 231, 0.96));
+      box-shadow: 0 14px 28px rgba(14, 36, 24, 0.16);
+      font-size: 12px;
+      line-height: 1.5;
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
+      visibility: hidden;
+      transition: opacity 140ms ease, transform 140ms ease;
+    }
+
+    .model-help-btn:hover + .model-help-tip,
+    .model-help-btn:focus-visible + .model-help-tip {
+      opacity: 1;
+      transform: translateY(0);
+      visibility: visible;
+    }
+
+    .side-panel {
+      display: grid;
+      gap: 10px;
+      height: 100%;
+      min-height: 0;
+      grid-template-rows: auto 1fr;
+    }
+
+    .profile-card {
+      border: 1px solid #cde0ce;
+      border-radius: 14px;
+      background: linear-gradient(160deg, rgba(247, 254, 248, 0.95), rgba(234, 247, 235, 0.86));
+      backdrop-filter: blur(10px);
+      padding: 11px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #233129;
+      box-shadow: var(--shadow-md);
+    }
+
+    .profile-card.compact {
+      padding-bottom: 8px;
+    }
+
+    .profile-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 6px;
+    }
+
+    .profile-meta {
+      color: #4a5750;
+      margin-bottom: 6px;
+    }
+
+    .profile-list {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 6px;
+      overflow: hidden;
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      padding: 2px 0;
+    }
+
+    .profile-total {
+      border-top: 1px solid #d7e1d1;
+      padding-top: 6px;
+      font-weight: 700;
+    }
+
+    .profile-total.compact {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      flex: 1;
+    }
+
+    .notes {
+      display: none;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #49525a;
+    }
+
+    .airdrop {
+      border: 1px solid #cde0ce;
+      border-radius: 14px;
+      background: linear-gradient(155deg, rgba(252, 255, 250, 0.95), rgba(240, 249, 239, 0.84));
+      backdrop-filter: blur(10px);
+      padding: 10px;
+      height: 100%;
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      box-shadow: var(--shadow-md);
+    }
+
+    .airdrop::-webkit-scrollbar {
+      display: none;
+    }
+
+    .airdrop-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 4px;
+      color: #1f2f25;
+    }
+
+    .airdrop-legend {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: #55665b;
+      margin-bottom: 4px;
+      line-height: 1.2;
+      user-select: none;
+    }
+
+    .airdrop-legend-sample {
+      width: 24px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid #c5d5c2;
+      background: linear-gradient(90deg, rgba(78, 153, 95, 0.22) 0%, rgba(78, 153, 95, 0.08) 70%, #dfe8da 70%, #dfe8da 100%);
+      flex: 0 0 24px;
+    }
+
+    .airdrop-field {
+      display: grid;
+      gap: 4px;
+      font-size: 12px;
+      color: #334039;
+    }
+
+    .airdrop-field input {
+      border: 1px solid #c9d4c5;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .airdrop-list {
+      display: grid;
+      gap: 5px;
+      margin-bottom: 6px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 2px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .airdrop-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .airdrop-item {
+      border: 1px solid #c9d9ca;
+      background: linear-gradient(180deg, #ffffff, #f8fcf7);
+      border-radius: 10px;
+      padding: 7px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+    }
+
+    .airdrop-item:hover {
+      transform: translateY(-1px);
+      border-color: #a9c3ad;
+      box-shadow: 0 8px 18px rgba(20, 47, 32, 0.09);
+    }
+
+    .airdrop-inline {
+      width: 100%;
+      display: grid;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .airdrop-inline[hidden] {
+      display: none;
+    }
+
+    .airdrop-inline-label {
+      font-size: 11px;
+      color: #3a4941;
+    }
+
+    .airdrop-inline-input {
+      border: 1px solid #c9d4c5;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 7px 8px;
+      font-family: inherit;
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .airdrop-item.active {
+      border-color: #6ca17b;
+      background: linear-gradient(160deg, #eef8ef, #e4f2e5);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 10px 22px rgba(18, 53, 30, 0.12);
+    }
+
+    .airdrop-select {
+      border: 0;
+      background: transparent;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      font-size: 12px;
+      color: #2a372f;
+      flex: 1;
+      padding: 2px;
+    }
+
+    .airdrop-select::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--progress-pct, 0%);
+      background: linear-gradient(90deg, rgba(78, 153, 95, 0.18), rgba(78, 153, 95, 0.08));
+      transition: width 320ms ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .airdrop-select > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .airdrop-select::after {
+      content: ">";
+      margin-left: auto;
+      color: #4f6b58;
+      font-weight: 700;
+      transition: transform 140ms ease, color 140ms ease;
+    }
+
+    .airdrop-item.active .airdrop-select::after {
+      transform: translateX(2px);
+      color: #1f4a2e;
+    }
+
+    .airdrop-select span {
+      border-bottom: 1px solid transparent;
+      transition: border-color 140ms ease;
+    }
+
+    .airdrop-item:hover .airdrop-select span,
+    .airdrop-item.active .airdrop-select span {
+      border-bottom-color: #8db097;
+    }
+
+    .airdrop-item img {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex: 0 0 20px;
+    }
+
+    .airdrop-result {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #213129;
+      background: linear-gradient(145deg, #f0f7ec, #e5f1e0);
+      border: 1px solid #c9dcc9;
+      border-radius: 10px;
+      padding: 8px;
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+    }
+
+    .points-boost-btn {
+      display: inline-block;
+      border: 1px solid #98be9f;
+      background: linear-gradient(145deg, var(--mint-1), var(--mint-2));
+      color: #183026;
+      border-radius: 8px;
+      padding: 6px 8px;
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: transform 130ms ease, filter 130ms ease;
+    }
+
+    .points-boost-btn:hover {
+      filter: brightness(1.02);
+      transform: translateY(-1px);
+    }
+
+    .points-boost-btn.disabled {
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    @media (max-width: 980px) {
+      .chart-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .airdrop {
+        order: 2;
+        height: 100%;
+      }
+
+      .wrap {
+        height: 98vh;
+        padding: 10px;
+      }
+
+      canvas {
+        min-height: 420px;
+      }
+
+      .chart-box {
+        padding: 4px;
+      }
+
+      .model-help-wrap {
+        top: 8px;
+        right: 8px;
+      }
+    }
+
+    code {
+      background: #e3eee0;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: "JetBrains Mono", monospace;
+      color: #1d3527;
+    }
+
+    .hero-overlay__credit {
+      position: fixed;
+      left: 14px;
+      bottom: 28px;
+      z-index: 12;
+      transform: translateY(0);
+      margin-top: 0.7rem;
+      padding: 0.32rem 0.55rem 0.32rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #ffd84d;
+      background: rgba(0, 0, 0, 0.56);
+      border: 1px solid #ffd84d;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+      max-width: calc(100vw - 24px);
+      backdrop-filter: blur(1px);
+    }
+
+    .hero-overlay__credit:hover {
+      border-color: #ffed9e;
+      color: #ffed9e;
+      transform: translateY(-1px);
+    }
+
+    .hero-overlay__credit-label {
+      letter-spacing: inherit;
+      white-space: nowrap;
+    }
+
+    .hero-overlay__credit-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+      margin-right: -0.3rem;
+      flex: 0 0 36px;
+    }
+
+    .hero-overlay__credit-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .hero-overlay__credit {
+        font-size: 0.74rem;
+        letter-spacing: 0.15em;
+        padding: 0.26rem 0.45rem 0.26rem 0.95rem;
+      }
+
+      .hero-overlay__credit-avatar {
+        width: 31px;
+        height: 31px;
+        flex-basis: 31px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="model-help-wrap" aria-label="Model help">
+      <button class="model-help-btn" type="button" aria-label="Show model explanation">?</button>
+      <div class="model-help-tip">
+        <strong>How the valuation model works</strong><br>
+        1) Network size = <code>sqrt(volume_7d * open_interest)</code><br>
+        2) Network factor = <code>(network_size / network_median)^0.5</code><br>
+        3) Base value = <code>(revenue_7d or fees_7d) * 52 * 15</code><br>
+        4) Model FDV = <code>base_value * network_factor</code><br>
+        5) For launched tokens, ratio = <code>model_fdv / current_FDV</code><br>
+        6) For no-token protocols, future MC is shown as <code>35% of FDV</code>.
+      </div>
+    </div>
+    <div class="chart-layout">
+      <div class="chart-box">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="side-panel">
+        <section class="profile-card" id="profileCard">
+          <div class="profile-title">Profile</div>
+          <div class="profile-meta" id="profileMeta">Last update: -</div>
+          <div class="profile-list" id="profileList"></div>
+          <div class="profile-total" id="profileTotal">Estimated total: -</div>
+        </section>
+        <section class="airdrop" id="airdropChecker">
+          <div class="airdrop-title">Airdrop checker</div>
+          <div class="airdrop-legend" aria-label="Legend">
+            <span class="airdrop-legend-sample" aria-hidden="true"></span>
+            <span>Remplissage du bouton = progression vers l'airdrop</span>
+          </div>
+          <div class="airdrop-list" id="airdropList"></div>
+          <div class="airdrop-result" id="airdropResult">Click a project name to enter your points.</div>
+        </section>
+      </div>
+    </div>
+    <div class="notes" id="notes">Loading...</div>
+  </main>
+
+  <a
+    class="hero-overlay__credit"
+    href="https://x.com/JoestarCrypto"
+    target="_blank"
+    rel="noreferrer noopener"
+  >
+    <span class="hero-overlay__credit-label">Made by Joestar</span>
+    <span class="hero-overlay__credit-avatar" aria-hidden="true">
+      <img src="assets/Jojo2.webp" alt="" />
+    </span>
+  </a>
+
+  <script>
+    const PROJECTS = [
+      { name: "Hyperliquid", slug: "hyperliquid", revenueSlug: "hyperliquid-perps", launched: true, logo: "https://icons.llamao.fi/icons/protocols/hyperliquid?w=128&h=128", avgVolume7d: 51.478 / 7, avgOi7d: 5.788, revenue7d: 14.850159, fdv: 29.789, source: "DefiLlama derivatives/protocol + fees" },
+      { name: "Aster", slug: "aster", launched: true, logo: "https://icons.llamao.fi/icons/protocols/aster?w=128&h=128", avgVolume7d: 18.102 / 7, avgOi7d: 2.159, revenue7d: null, fees7d: 0.13577 / 52, fdv: 5.45, source: "DefiLlama protocol page (fees annualized) + derivatives" },
+      { name: "Lighter", slug: "lighter", revenueSlug: "lighter-perps", launched: true, logo: "https://icons.llamao.fi/icons/protocols/lighter?w=128&h=128", avgVolume7d: 15.127 / 7, avgOi7d: 0.63782, revenue7d: 0.845194, fdv: 1.041, source: "DefiLlama derivatives/protocol + fees" },
+      { name: "Avantis", slug: "avantis", launched: true, logo: "https://icons.llamao.fi/icons/protocols/avantis?w=128&h=128", avgVolume7d: (4.236 * 7 / 30) / 7, avgOi7d: 0.01624, revenue7d: null, fdv: 0.15713, source: "30d volume -> 7d avg, protocol OI" },
+      { name: "GMX", slug: "gmx", revenueSlug: "gmx-v2-perps", launched: true, logo: "https://icons.llamao.fi/icons/protocols/gmx?w=128&h=128", avgVolume7d: (4.694 * 7 / 30) / 7, avgOi7d: 0.07631, revenue7d: 0.477024, fdv: 0.06486, source: "30d volume -> 7d avg, protocol OI + fees" },
+      { name: "dYdX", slug: "dydx", revenueSlug: "dydx-v4", launched: true, logo: "https://icons.llamao.fi/icons/protocols/dydx?w=128&h=128", avgVolume7d: (4.928 * 7 / 30) / 7, avgOi7d: 0.04219, revenue7d: 0.081854, fdv: 0.07781, source: "30d volume -> 7d avg, protocol OI + fees" },
+      { name: "Paradex", slug: "paradex", launched: true, logo: "https://icons.llamao.fi/icons/protocols/paradex?w=128&h=128", avgVolume7d: (10.24 / 30), avgOi7d: 0.30754, revenue7d: null, fees7d: 0.00673 / 52, fdv: 0.043121696, source: "DefiLlama protocol page (fees annualized), FDV CoinGecko" },
+      { name: "Drift", slug: "drift", launched: true, logo: "https://icons.llamao.fi/icons/protocols/drift?w=128&h=128", avgVolume7d: 2.528 / 30, avgOi7d: 0.13083, revenue7d: 0.00772 / 52, fees7d: 0.01957 / 52, fdv: 0.08167, mcap: 0.04752, source: "DefiLlama protocol page" },
+      { name: "ApeX Protocol", slug: "apex-protocol", revenueSlug: "apex-omni", launched: true, logo: "https://icons.llamao.fi/icons/protocols/apex-protocol?w=128&h=128", avgVolume7d: 36.93 / 30, avgOi7d: 0.10924, revenue7d: 0.00257 / 52, fees7d: 0.00514 / 52, fdv: 0.13952, mcap: 0.03843, source: "DefiLlama protocol page" },
+      { name: "Gains Network", slug: "gains-network", launched: true, logo: "https://icons.llamao.fi/icons/protocols/gains-network?w=128&h=128", avgVolume7d: 1.615 / 30, avgOi7d: 0.02214, revenue7d: 0.00589 / 52, fees7d: 0.009 / 52, fdv: 0.01945, mcap: 0.01945, source: "DefiLlama protocol page (OI fallback TVL)" },
+      { name: "Variational", slug: "variational", launched: false, appUrl: "https://omni.variational.io/?ref=OMNIJOESTAR", logo: "https://icons.llamao.fi/icons/protocols/variational?w=128&h=128", avgVolume7d: (28.197 / 30), avgOi7d: 0.69797, revenue7d: 0.00085, fees7d: null, fdv: null, source: "Perp 30d volume + OI (protocol page), user revenue 1.7M/14d, no token" },
+      { name: "edgeX", slug: "edgex", revenueSlug: "edgex-perps", launched: false, appUrl: "https://pro.edgex.exchange/en-US/referral/963522466", logo: "https://icons.llamao.fi/icons/protocols/edgex?w=128&h=128", avgVolume7d: 15.661 / 7, avgOi7d: 1.027, revenue7d: 3.16659, fdv: null, source: "Reported 7d + OI (derivatives/protocol)" },
+      { name: "Pacifica", slug: "pacifica", launched: false, appUrl: "https://defillama.com/protocol/pacifica", logo: "https://icons.llamao.fi/icons/protocols/pacifica?w=128&h=128", avgVolume7d: 0.49654, avgOi7d: 0.20767, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
+      { name: "Extended", slug: "extended", launched: false, appUrl: "https://app.extended.exchange/join/JOESTARCRYPTO", logo: "https://icons.llamao.fi/icons/protocols/extended?w=128&h=128", avgVolume7d: 2.72407, avgOi7d: 1.13931, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
+      { name: "GRVT", slug: "grvt", launched: false, appUrl: "https://grvt.io/?ref=YMJG9L9", logo: "https://icons.llamao.fi/icons/protocols/grvt?w=128&h=128", avgVolume7d: 36.371 / 30, avgOi7d: 0.46723, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama protocol page, no token" },
+      { name: "Vest Markets", slug: "vest-markets", launched: false, appUrl: "https://trade.vestmarkets.com/join/8V7W3", logo: "https://icons.llamao.fi/icons/protocols/vest-markets?w=128&h=128", avgVolume7d: 1.241 / 30, avgOi7d: 0.06144, revenue7d: null, fees7d: 0.000517707 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
+      { name: "Ostium", slug: "ostium", launched: false, appUrl: "https://ostium.app/trade?ref=3SSCB", logo: "https://icons.llamao.fi/icons/protocols/ostium?w=128&h=128", avgVolume7d: 4.489 / 30, avgOi7d: 0.22936, revenue7d: 0.012 / 52, fees7d: 0.01813 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
+      { name: "StandX", slug: "standx", launched: false, appUrl: "https://defillama.com/protocol/standx?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/standx?w=128&h=128", avgVolume7d: 17.545 / 30, avgOi7d: 0.03578, revenue7d: 0.000292776 / 52, fees7d: 0.00111 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" },
+      { name: "01 Exchange", slug: "01-exchange", launched: false, appUrl: "https://defillama.com/protocol/01-exchange", logo: "https://icons.llamao.fi/icons/protocols/01-exchange?w=128&h=128", avgVolume7d: 1.035 / 30, avgOi7d: 0.00459, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest" },
+      { name: "Reya", slug: "reya", launched: false, appUrl: "https://app.reya.xyz/trade?referredBy=12ovqft8", logo: "https://icons.llamao.fi/icons/protocols/reya?w=128&h=128", avgVolume7d: 9.56 / 30, avgOi7d: 0.02106, revenue7d: 0.000380518 / 52, fees7d: 0.00214 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" },
+      { name: "Nado", slug: "nado", launched: false, appUrl: "https://defillama.com/protocol/nado?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/nado?w=128&h=128", avgVolume7d: 11.025 / 30, avgOi7d: 0.0926, revenue7d: 0.02039 / 52, fees7d: 0.02862 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" }
+    ];
+
+    const API_CACHE_KEY = "perp.defillama.dailyCache.v2";
+    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v2";
+
+    const AIRDROP_CONFIG = {
+      nado: { name: "Nado", airdropPct: 0.25, totalPoints: 34700000, note: "25% airdrop / 34.7M points" },
+      reya: { name: "Reya", airdropPct: 0.25, totalPoints: 14000000, note: "25% airdrop / 14M points" },
+      "01-exchange": { name: "01 Exchange", airdropPct: 0.25, totalPoints: 10000000, note: "25% airdrop / 10M points" },
+      "vest-markets": { name: "Vest Markets", airdropPct: 0.25, totalPoints: 60000000, note: "25% airdrop / 60M points" },
+      extended: { name: "Extended", airdropPct: 0.30, totalPoints: 50000000, note: "30% airdrop / 50M points" },
+      variational: { name: "Variational", airdropPct: 0.30, totalPoints: 10000000, note: "30% airdrop / 10M points" },
+      edgex: { name: "edgeX", airdropPct: 0.25, totalPoints: 30000000, note: "25% airdrop / 30M points + XP" },
+      pacifica: { name: "Pacifica", airdropPct: 0.30, totalPoints: 520000000, note: "30% airdrop / 520M points" },
+      grvt: { name: "GRVT", airdropPct: 0.30, totalPoints: 100000000, note: "Airdrop estimate" },
+      ostium: { name: "Ostium", airdropPct: 0.30, totalPoints: 100000000, note: "Airdrop estimate" }
+    };
+
+    const TGE_PROGRESS_CONFIG = {
+      edgex: { startDate: "2025-05-28", tgeDate: "2026-03-31", tgeLabel: "31 Mar 2026" },
+      "vest-markets": { startDate: "2025-03-13", tgeDate: "2026-05-01", tgeLabel: "~1 May 2026" },
+      pacifica: { startDate: "2025-09-04", tgeDate: "2026-08-01", tgeLabel: "~Aug 2026" },
+      reya: { startDate: "2025-11-01", tgeDate: "2026-06-29", tgeLabel: "~Summer 2026" },
+      extended: { startDate: "2025-09-01", tgeDate: "2026-05-14", tgeLabel: "~May 2026" },
+      "01-exchange": { startDate: "2026-01-01", tgeDate: "2026-08-01", tgeLabel: "~Aug 2026" },
+      variational: { startDate: "2025-10-08", tgeDate: "2026-09-23", tgeLabel: "Sep 2026" },
+      nado: { startDate: "2026-01-30", tgeDate: "2026-07-15", tgeLabel: "~Jul 2026" },
+      ostium: { startDate: "2025-12-20", tgeDate: "2026-10-15", tgeLabel: "~Q3-Q4 2026" },
+      grvt: { startDate: "2025-04-01", tgeDate: "2026-12-31", tgeLabel: "~End 2026" }
+    };
+
+    function flatten(v) {
+      if (typeof v === "number") return v;
+      if (!v || typeof v !== "object") return 0;
+      return Object.values(v).reduce((a, b) => a + flatten(b), 0);
+    }
+
+    function avg7FromChart(chart) {
+      if (!Array.isArray(chart)) return null;
+      const values = chart
+        .map((row) => Array.isArray(row) && row.length > 1 ? flatten(row[1]) : null)
+        .filter((x) => Number.isFinite(x) && x > 0);
+      if (values.length < 3) return null;
+      const last7 = values.slice(-7);
+      return last7.reduce((a, b) => a + b, 0) / last7.length / 1e9;
+    }
+
+    async function getJson(url) {
+      const res = await fetch(url, { headers: { accept: "application/json" } });
+      if (!res.ok) throw new Error(String(res.status));
+      return res.json();
+    }
+
+    async function enrichWithFreeApi(project) {
+      const out = { ...project, apiUsed: [] };
+      try {
+        const p = await getJson(`https://api.llama.fi/protocol/${project.slug}`);
+        if (Number.isFinite(Number(p.fdv)) && Number(p.fdv) > 0) {
+          out.fdv = Number(p.fdv) / 1e9;
+          out.apiUsed.push("protocol.fdv");
+        }
+        if (Number.isFinite(Number(p.mcap)) && Number(p.mcap) > 0) {
+          out.mcap = Number(p.mcap) / 1e9;
+          out.apiUsed.push("protocol.mcap");
+        }
+        if (p.logo && typeof p.logo === "string") {
+          out.logo = p.logo;
+        }
+      } catch (_) {
+        // Keep fallback values
+      }
+
+      // Free endpoint attempted first. DefiLlama can throttle it, so fallback remains in place.
+      try {
+        const vol = await getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=dailyVolume`);
+        const avgVol = avg7FromChart(vol.totalDataChart || vol.totalDataChartBreakdown);
+        if (Number.isFinite(avgVol) && avgVol > 0) {
+          out.avgVolume7d = avgVol;
+          out.apiUsed.push("summary.dailyVolume");
+        }
+      } catch (_) {}
+
+      try {
+        const oi = await getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=openInterest`);
+        const avgOi = avg7FromChart(oi.totalDataChart || oi.totalDataChartBreakdown);
+        if (Number.isFinite(avgOi) && avgOi > 0) {
+          out.avgOi7d = avgOi;
+          out.apiUsed.push("summary.openInterest");
+        }
+      } catch (_) {}
+
+      return out;
+    }
+
+    async function fetch7dMap(dataType) {
+      try {
+        const r = await getJson(`https://api.llama.fi/overview/fees?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=true&dataType=${dataType}`);
+        const map = new Map();
+        (r.protocols || []).forEach((p) => {
+          if (!p || typeof p.slug !== "string") return;
+          const total7d = Number(p.total7d);
+          if (Number.isFinite(total7d) && total7d >= 0) {
+            map.set(p.slug, total7d / 1e9);
+          }
+        });
+        return map;
+      } catch (_) {
+        return new Map();
+      }
+    }
+
+    function median(values) {
+      const arr = [...values].sort((a, b) => a - b);
+      if (!arr.length) return null;
+      const mid = Math.floor(arr.length / 2);
+      return arr.length % 2 === 0 ? (arr[mid - 1] + arr[mid]) / 2 : arr[mid];
+    }
+
+    function fmt(value, digits = 3) {
+      return Number.isFinite(value) ? Number(value).toFixed(digits) : "n/a";
+    }
+
+    function fmtUsdCompactFromB(valueB) {
+      if (!Number.isFinite(valueB)) return "n/a";
+      if (valueB >= 1) return `$${valueB.toFixed(2)}B`;
+      const valueM = valueB * 1000;
+      if (valueM >= 1) return `$${valueM.toFixed(2)}M`;
+      return `$${(valueM * 1000).toFixed(0)}K`;
+    }
+
+    function fmtRevenueMFromB(valueB) {
+      if (!Number.isFinite(valueB)) return "n/a";
+      const valueM = valueB * 1000;
+      if (valueM >= 1) return `$${valueM.toFixed(2)}M`;
+      return `$${(valueM * 1000).toFixed(0)}K`;
+    }
+
+    function getAirdropProgress(slug, atDate = new Date()) {
+      const cfg = TGE_PROGRESS_CONFIG[slug];
+      if (!cfg) return null;
+      const start = new Date(`${cfg.startDate}T00:00:00`);
+      const end = new Date(`${cfg.tgeDate}T00:00:00`);
+      const total = end.getTime() - start.getTime();
+      if (!Number.isFinite(total) || total <= 0) return null;
+
+      const elapsedRaw = atDate.getTime() - start.getTime();
+      const elapsed = Math.max(0, Math.min(total, elapsedRaw));
+      const pct = Math.max(0, Math.min(100, Math.round((elapsed / total) * 100)));
+      const daysLeft = Math.max(0, Math.ceil((end.getTime() - atDate.getTime()) / 86400000));
+      return { pct, daysLeft, tgeLabel: cfg.tgeLabel };
+    }
+
+    function loadImage(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    }
+
+    async function run() {
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const cacheDay = localStorage.getItem(API_CACHE_DAY_KEY);
+      const cachedRaw = localStorage.getItem(API_CACHE_KEY);
+      let enriched = null;
+
+      if (cacheDay === todayKey && cachedRaw) {
+        try {
+          const parsed = JSON.parse(cachedRaw);
+          if (Array.isArray(parsed) && parsed.length) {
+            enriched = parsed;
+          }
+        } catch (_) {
+          enriched = null;
+        }
+      }
+
+      if (!Array.isArray(enriched) || !enriched.length) {
+        const revenueMap = await fetch7dMap("dailyRevenue");
+        const feesMap = await fetch7dMap("dailyFees");
+        enriched = await Promise.all(PROJECTS.map(async (p) => {
+          const out = await enrichWithFreeApi(p);
+          const key = out.revenueSlug || out.slug;
+          const revenue = revenueMap.get(key);
+          const fees = feesMap.get(key);
+          if (Number.isFinite(revenue) && revenue >= 0) {
+            out.revenue7d = revenue;
+            out.apiUsed.push(`fees.${key}`);
+          }
+          if (Number.isFinite(fees) && fees >= 0) {
+            out.fees7d = fees;
+            out.apiUsed.push(`feesData.${key}`);
+          }
+          return out;
+        }));
+
+        try {
+          localStorage.setItem(API_CACHE_KEY, JSON.stringify(enriched));
+          localStorage.setItem(API_CACHE_DAY_KEY, todayKey);
+        } catch (_) {
+          // Ignore localStorage quota or privacy mode errors.
+        }
+      }
+
+      const withNetwork = enriched
+        .filter((p) => Number.isFinite(p.avgVolume7d) && p.avgVolume7d > 0 && Number.isFinite(p.avgOi7d) && p.avgOi7d > 0)
+        .map((p) => ({
+          ...p,
+          volume7d: p.avgVolume7d * 7,
+          networkSize: Math.sqrt((p.avgVolume7d * 7) * p.avgOi7d)
+        }));
+
+      const networkMedian = median(withNetwork.map((p) => p.networkSize).filter((v) => Number.isFinite(v) && v > 0));
+
+      enriched.forEach((p) => {
+        p.volume7d = Number.isFinite(p.avgVolume7d) ? p.avgVolume7d * 7 : null;
+        p.networkSize = (Number.isFinite(p.volume7d) && p.volume7d > 0 && Number.isFinite(p.avgOi7d) && p.avgOi7d > 0)
+          ? Math.sqrt(p.volume7d * p.avgOi7d)
+          : null;
+        p.networkFactor = (Number.isFinite(p.networkSize) && Number.isFinite(networkMedian) && networkMedian > 0)
+          ? Math.pow(p.networkSize / networkMedian, 0.5)
+          : null;
+
+        const revenue = Number.isFinite(p.revenue7d) && p.revenue7d > 0 ? p.revenue7d : null;
+        const fees = Number.isFinite(p.fees7d) && p.fees7d > 0 ? p.fees7d : null;
+        p.valuationMetric7d = revenue ?? fees;
+        p.valuationMetricType = revenue ? "revenue" : (fees ? "fees" : null);
+      });
+
+      const monetizedPeers = enriched.filter((p) => Number.isFinite(p.valuationMetric7d) && p.valuationMetric7d > 0 && Number.isFinite(p.networkFactor) && p.networkFactor > 0);
+      const medianMetricPerNetwork = median(monetizedPeers.map((p) => p.valuationMetric7d / p.networkFactor).filter((v) => Number.isFinite(v) && v > 0));
+
+      enriched.forEach((p) => {
+        if (!Number.isFinite(p.valuationMetric7d) && !p.launched && Number.isFinite(p.networkFactor) && p.networkFactor > 0 && Number.isFinite(medianMetricPerNetwork) && medianMetricPerNetwork > 0) {
+          p.valuationMetric7d = medianMetricPerNetwork * p.networkFactor;
+          p.valuationMetricType = "proxy";
+        }
+
+        if (Number.isFinite(p.valuationMetric7d) && p.valuationMetric7d > 0 && Number.isFinite(p.networkFactor) && p.networkFactor > 0) {
+          p.baseValue = p.valuationMetric7d * 52 * 15;
+          p.fdvModel = p.baseValue * p.networkFactor;
+        } else {
+          p.baseValue = null;
+          p.fdvModel = null;
+        }
+
+        if (Number.isFinite(p.fdvModel) && Number.isFinite(p.fdv) && p.fdv > 0) {
+          p.ratioFdv = p.fdvModel / p.fdv;
+        } else {
+          p.ratioFdv = null;
+        }
+
+      });
+
+      const launched = enriched.filter((p) => p.launched && Number.isFinite(p.ratioFdv));
+      const medianLaunchedRatio = median(launched.map((p) => p.ratioFdv).filter((v) => Number.isFinite(v) && v > 0));
+
+      enriched.forEach((p) => {
+        if (!p.launched && Number.isFinite(p.fdvModel) && Number.isFinite(medianLaunchedRatio) && medianLaunchedRatio > 0) {
+          p.ratioFdv = medianLaunchedRatio;
+          p.fdv = p.fdvModel / medianLaunchedRatio;
+          p.mcapFuture = p.fdv * 0.35;
+          p.fdvEstimated = true;
+        }
+      });
+
+      const pointsBase = enriched
+        .filter((p) => Number.isFinite(p.fdv) && p.fdv > 0)
+        .map((p) => ({
+          x: p.fdv,
+          ratioFdv: p.ratioFdv,
+          name: p.name,
+          slug: p.slug,
+          launched: p.launched,
+          avgVolume7d: p.avgVolume7d,
+          avgOi7d: p.avgOi7d,
+          revenue7d: p.revenue7d,
+          fees7d: p.fees7d,
+          valuationMetric7d: p.valuationMetric7d,
+          valuationMetricType: p.valuationMetricType,
+          avgCombined: p.avgVolume7d + p.avgOi7d,
+          networkSize: p.networkSize,
+          networkFactor: p.networkFactor,
+          fdvModel: p.fdvModel,
+          fdv: p.fdv,
+          mcap: p.mcap,
+          mcapFuture: p.mcapFuture,
+          fdvEstimated: !!p.fdvEstimated,
+          source: p.source,
+          apiUsed: p.apiUsed || [],
+          logo: p.logo
+        }));
+
+      function buildPlotPoints() {
+        const launchedRatios = pointsBase
+          .filter((p) => p.launched)
+          .map((p) => p.ratioFdv)
+          .filter((v) => Number.isFinite(v) && v > 0);
+        const launchedMedian = median(launchedRatios);
+
+        const rows = pointsBase
+          .map((p) => {
+            if (!p.launched) {
+              if (!Number.isFinite(p.fdvModel) || !Number.isFinite(launchedMedian) || launchedMedian <= 0) return null;
+              const fdvEstimated = p.fdvModel / launchedMedian;
+              return {
+                ...p,
+                x: fdvEstimated,
+                ratio: launchedMedian,
+                y: launchedMedian,
+                fdv: fdvEstimated,
+                fdvEstimated: true
+              };
+            }
+
+            const ratio = p.ratioFdv;
+            if (!Number.isFinite(ratio) || ratio <= 0) return null;
+            return {
+              ...p,
+              ratio,
+              y: ratio
+            };
+          })
+          .filter(Boolean);
+        return rows;
+      }
+
+      function buildMedianLine(activePoints, xMin, xMax) {
+        const allRatios = activePoints.map((p) => p.ratio).filter((v) => Number.isFinite(v) && v > 0);
+        const med = median(allRatios);
+        if (!Number.isFinite(med)) return null;
+        return {
+          type: "line",
+          label: `Median ratios: ${fmt(med, 3)}`,
+          data: [{ x: xMin, y: med }, { x: xMax, y: med }],
+          borderColor: "#bf3f28",
+          borderWidth: 2,
+          borderDash: [7, 5],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false
+        };
+      }
+
+      function titleForMode() {
+        return "Future Token Value Model";
+      }
+
+      function usd(value) {
+        if (!Number.isFinite(value)) return "n/a";
+        return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+      }
+
+      let currentPoints = buildPlotPoints();
+      const images = await Promise.all(pointsBase.map((p) => loadImage(p.logo)));
+      const logoBySlug = new Map(pointsBase.map((p, i) => [p.slug, images[i]]));
+      currentPoints = currentPoints.map((p) => ({ ...p, image: logoBySlug.get(p.slug) || null }));
+
+      const xValues = currentPoints.map((p) => p.x).filter((v) => Number.isFinite(v) && v > 0);
+      const minX = xValues.length ? Math.min(...xValues) : 0.02;
+      const maxX = xValues.length ? Math.max(...xValues) : 40;
+      const xMin = Math.max(0.001, minX * 0.8);
+      const xMax = Math.min(120, maxX * 1.25);
+
+      const squareGridPlugin = {
+        id: "squareGridPlugin",
+        beforeDatasetsDraw(chart) {
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return;
+          const { left, right, top, bottom } = chartArea;
+          const step = 42;
+
+          ctx.save();
+          ctx.strokeStyle = "rgba(116, 134, 112, 0.22)";
+          ctx.lineWidth = 1;
+
+          for (let x = left; x <= right; x += step) {
+            ctx.beginPath();
+            ctx.moveTo(x, top);
+            ctx.lineTo(x, bottom);
+            ctx.stroke();
+          }
+
+          for (let y = top; y <= bottom; y += step) {
+            ctx.beginPath();
+            ctx.moveTo(left, y);
+            ctx.lineTo(right, y);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+      };
+
+      const logoPlugin = {
+        id: "logoPlugin",
+        afterDatasetsDraw(chart) {
+          const pointDatasetIndex = chart.data.datasets.findIndex((d) => d.label === "Projects");
+          if (pointDatasetIndex < 0) return;
+          const meta = chart.getDatasetMeta(pointDatasetIndex);
+          const ctx = chart.ctx;
+
+          currentPoints.forEach((p, i) => {
+            const el = meta.data[i];
+            if (!el) return;
+            const { x, y } = el.getProps(["x", "y"], true);
+            const ring = p.launched ? "#0d8a6b" : "#da7f2b";
+            const r = 14;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(x, y, r + 2, 0, Math.PI * 2);
+            ctx.strokeStyle = ring;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.closePath();
+            ctx.clip();
+
+            if (p.image) {
+              ctx.drawImage(p.image, x - r, y - r, r * 2, r * 2);
+            } else {
+              ctx.fillStyle = "#cfd6db";
+              ctx.fillRect(x - r, y - r, r * 2, r * 2);
+            }
+            ctx.restore();
+          });
+        }
+      };
+
+      const pluginsToRegister = [squareGridPlugin, logoPlugin];
+      if (typeof ChartDataLabels !== "undefined") pluginsToRegister.push(ChartDataLabels);
+      Chart.register(...pluginsToRegister);
+
+      const c = document.getElementById("chart");
+      const chart = new Chart(c, {
+        type: "scatter",
+        data: {
+          datasets: [
+            ...(() => {
+              const line = buildMedianLine(currentPoints, xMin, xMax);
+              return line ? [line] : [];
+            })(),
+            {
+              label: "Projects",
+              data: currentPoints,
+              pointRadius: 14,
+              pointHoverRadius: 14,
+              pointHitRadius: 20,
+              pointBackgroundColor: "rgba(0,0,0,0)",
+              pointBorderColor: "rgba(0,0,0,0)"
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true, position: "bottom", labels: { boxWidth: 14, usePointStyle: false } },
+            title: {
+              display: true,
+              text: titleForMode(),
+              color: "#1b2024",
+              font: { size: 20, weight: "700" },
+              padding: { top: 6, bottom: 16 }
+            },
+            tooltip: {
+              mode: "nearest",
+              intersect: true,
+              callbacks: {
+                title: (items) => items[0]?.raw?.name || "Project",
+                label: (ctx) => {
+                  const p = ctx.raw;
+                  return [
+                    `FDV: ${fmtUsdCompactFromB(p.fdv)}${p.fdvEstimated ? " (estimated)" : ""}`,
+                    p.launched ? `MC: ${fmtUsdCompactFromB(p.mcap)}` : `Potential MC (35% FDV): ${fmtUsdCompactFromB(p.mcapFuture)}`,
+                    `Volume 7d: ${fmtUsdCompactFromB(p.avgVolume7d * 7)}`,
+                    `Open Interest: ${fmtUsdCompactFromB(p.avgOi7d)}`,
+                    `${p.valuationMetricType === "fees" ? "Fees" : (p.valuationMetricType === "proxy" ? "Proxy" : "Revenue")} 7d: ${fmtRevenueMFromB(p.valuationMetric7d)}`
+                  ];
+                }
+              }
+            },
+            datalabels: typeof ChartDataLabels !== "undefined" ? {
+              offset: 10,
+              color: "#172026",
+              // Hide labels that are too close in screen space to reduce overlaps.
+              display: (ctx) => {
+                if (ctx.dataset?.label !== "Projects") return false;
+                const data = ctx.dataset.data || [];
+                const curr = data[ctx.dataIndex];
+                if (!curr) return false;
+                const xScale = ctx.chart.scales.x;
+                const yScale = ctx.chart.scales.y;
+                const cx = xScale.getPixelForValue(curr.x);
+                const cy = yScale.getPixelForValue(curr.y);
+                for (let i = 0; i < ctx.dataIndex; i++) {
+                  const prev = data[i];
+                  if (!prev) continue;
+                  const px = xScale.getPixelForValue(prev.x);
+                  const py = yScale.getPixelForValue(prev.y);
+                  if (Math.abs(cx - px) < 72 && Math.abs(cy - py) < 24) return false;
+                }
+                return true;
+              },
+              align: (ctx) => ctx.dataIndex % 2 === 0 ? "top" : "bottom",
+              anchor: (ctx) => ctx.dataIndex % 2 === 0 ? "end" : "start",
+              formatter: (v) => `${v.name} (${fmt(v.ratio, 2)})`,
+              font: { weight: "700", size: 11 }
+            } : undefined
+          },
+          scales: {
+            x: {
+              type: "logarithmic",
+              title: { display: true, text: "FDV (USD billions, log scale)", color: "#1b2024", font: { weight: "700" } },
+              ticks: {
+                color: "#2d343b",
+                font: { family: "JetBrains Mono", size: 11, weight: "600" },
+                maxRotation: 0,
+                minRotation: 0,
+                autoSkip: false,
+                callback: (v) => {
+                  const n = Number(v);
+                  if (!Number.isFinite(n)) return "";
+                  const major = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 40, 80, 120];
+                  const isMajor = major.some((m) => Math.abs(n - m) / m < 0.03);
+                  if (!isMajor) return "";
+                  if (n >= 1) return `${n.toFixed(n >= 10 ? 0 : 1)}B`;
+                  if (n >= 0.01) return `${(n * 1000).toFixed(0)}M`;
+                  return `${(n * 1000000).toFixed(0)}K`;
+                }
+              },
+              min: xMin,
+              max: xMax,
+              grid: { display: false },
+              border: { color: "#8ea188" }
+            },
+            y: {
+              title: { display: true, text: "Model ratio", color: "#1b2024", font: { weight: "700" } },
+              ticks: { color: "#2d343b", font: { family: "JetBrains Mono", size: 11, weight: "600" } },
+              grid: { display: false },
+              border: { color: "#8ea188" }
+            }
+          }
+        }
+      });
+
+      const airdropList = document.getElementById("airdropList");
+      const airdropResult = document.getElementById("airdropResult");
+      const profileMeta = document.getElementById("profileMeta");
+      const profileList = document.getElementById("profileList");
+      const profileTotal = document.getElementById("profileTotal");
+      const projectBySlug = new Map(PROJECTS.map((p) => [p.slug, p]));
+      const boostEnabled = new Set(["variational", "grvt", "ostium", "edgex", "extended", "nado", "reya", "vest-markets"]);
+      const storageKeyPoints = "perp.airdrop.points.v1";
+      const storageKeyDay = "perp.airdrop.lastDay.v1";
+      let savedPoints = {};
+      try {
+        const raw = localStorage.getItem(storageKeyPoints);
+        savedPoints = raw ? JSON.parse(raw) : {};
+      } catch (_) {
+        savedPoints = {};
+      }
+
+      const airdropTodayKey = new Date().toISOString().slice(0, 10);
+      const storedDay = localStorage.getItem(storageKeyDay);
+      if (storedDay !== airdropTodayKey) {
+        localStorage.setItem(storageKeyDay, airdropTodayKey);
+      }
+
+      function savePoints() {
+        localStorage.setItem(storageKeyPoints, JSON.stringify(savedPoints));
+      }
+
+      let selectedAirdropSlug = null;
+
+      let activePointsInput = null;
+
+      function selectAirdrop(slug, item) {
+        const sameProjectClicked = selectedAirdropSlug === slug;
+        selectedAirdropSlug = sameProjectClicked ? null : slug;
+        document.querySelectorAll(".airdrop-item").forEach((el) => {
+          el.classList.toggle("active", el.dataset.slug === selectedAirdropSlug);
+          const inline = el.querySelector(".airdrop-inline");
+          if (inline) inline.hidden = el.dataset.slug !== selectedAirdropSlug;
+        });
+        activePointsInput = selectedAirdropSlug ? (item?.querySelector(".airdrop-inline-input") || null) : null;
+        if (activePointsInput) {
+          activePointsInput.value = Number.isFinite(Number(savedPoints[selectedAirdropSlug])) ? String(savedPoints[selectedAirdropSlug]) : "0";
+          activePointsInput.focus();
+        }
+        updateAirdropChecker();
+      }
+
+      const airdropEntries = Object.entries(AIRDROP_CONFIG)
+        .map(([slug, cfg]) => {
+          const point = currentPoints.find((row) => row.slug === slug);
+          const potentialFdv = Number.isFinite(point?.fdv) ? point.fdv : -1;
+          return { slug, cfg, potentialFdv };
+        })
+        .sort((a, b) => b.potentialFdv - a.potentialFdv);
+
+      airdropEntries.forEach(({ slug, cfg }) => {
+        const p = projectBySlug.get(slug);
+        const progress = getAirdropProgress(slug);
+        const item = document.createElement("div");
+        item.className = `airdrop-item${slug === selectedAirdropSlug ? " active" : ""}`;
+        item.dataset.slug = slug;
+        item.innerHTML = [
+          `<button type="button" class="airdrop-select" data-select="${slug}" ${progress ? `data-progress-slug="${slug}" style="--progress-pct:${progress.pct}%;"` : ""}>`,
+          `${p?.logo ? `<img src="${p.logo}" alt="${cfg.name}" />` : ""}<span>${cfg.name}</span>`,
+          `</button>`,
+          `<a class="points-boost-btn ${(p?.appUrl && boostEnabled.has(slug)) ? "" : "disabled"}" href="${(p?.appUrl && boostEnabled.has(slug)) ? p.appUrl : "#"}" target="_blank" rel="noopener noreferrer">Points boost</a>`,
+          `<div class="airdrop-inline" hidden>`,
+          `<div class="airdrop-inline-label">My points on ${cfg.name}</div>`,
+          `<input class="airdrop-inline-input" type="number" min="0" step="any" value="0" />`,
+          `</div>`
+        ].join("");
+
+        item.querySelector(".airdrop-select")?.addEventListener("click", () => {
+          selectAirdrop(slug, item);
+        });
+
+        item.querySelector(".airdrop-inline-input")?.addEventListener("input", () => {
+          if (selectedAirdropSlug === slug) updateAirdropChecker();
+        });
+
+        airdropList.appendChild(item);
+      });
+
+      function refreshAirdropProgressBars() {
+        const now = new Date();
+        document.querySelectorAll(".airdrop-select[data-progress-slug]").forEach((el) => {
+          const slug = el.getAttribute("data-progress-slug");
+          if (!slug) return;
+          const progress = getAirdropProgress(slug, now);
+          if (!progress) return;
+          el.style.setProperty("--progress-pct", `${progress.pct}%`);
+        });
+      }
+
+      function scheduleDailyProgressRefresh() {
+        const now = new Date();
+        const next = new Date(now);
+        next.setHours(24, 0, 5, 0);
+        const ms = Math.max(1000, next.getTime() - now.getTime());
+        setTimeout(() => {
+          refreshAirdropProgressBars();
+          scheduleDailyProgressRefresh();
+        }, ms);
+      }
+
+      refreshAirdropProgressBars();
+      setInterval(refreshAirdropProgressBars, 6 * 60 * 60 * 1000);
+      scheduleDailyProgressRefresh();
+
+      function updateAirdropChecker() {
+        const slug = selectedAirdropSlug;
+        if (!slug) {
+          airdropResult.textContent = "Click a project name to enter your points.";
+          updateProfileSummary();
+          return;
+        }
+        const cfg = AIRDROP_CONFIG[slug];
+        const pts = Number(activePointsInput?.value || 0);
+        savedPoints[slug] = Number.isFinite(pts) ? Math.max(0, pts) : 0;
+        savePoints();
+        const p = currentPoints.find((row) => row.slug === slug);
+
+        if (!cfg || !p || !Number.isFinite(p.fdv) || p.fdv <= 0) {
+          airdropResult.textContent = "Insufficient data to estimate this airdrop.";
+          return;
+        }
+
+        const fdvUsd = p.fdv * 1e9;
+        const futureMcapUsd = Number.isFinite(p.mcapFuture) ? p.mcapFuture * 1e9 : fdvUsd * 0.35;
+        const airdropPoolUsd = fdvUsd * cfg.airdropPct;
+        const pointValueUsd = airdropPoolUsd / cfg.totalPoints;
+        const userValueUsd = Math.max(0, pts) * pointValueUsd;
+
+        airdropResult.innerHTML = [
+          `<strong>${cfg.name}</strong>`,
+          `Estimated FDV used: <code>${usd(fdvUsd)}</code>`,
+          `Estimated future MC (35% FDV): <code>${usd(futureMcapUsd)}</code>`,
+          `Airdrop pool: <code>${Math.round(cfg.airdropPct * 100)}%</code> = <code>${usd(airdropPoolUsd)}</code>`,
+          `Value per point: <code>${pointValueUsd.toFixed(6)} USD</code>`,
+          `Your points: <code>${Number.isFinite(pts) ? pts.toLocaleString("en-US") : "0"}</code>`,
+          `<strong>Estimated value: ${usd(userValueUsd)}</strong>`
+        ].join("<br>");
+
+        updateProfileSummary();
+      }
+
+      function estimateUserValue(slug, pts) {
+        const cfg = AIRDROP_CONFIG[slug];
+        const p = currentPoints.find((row) => row.slug === slug);
+        if (!cfg || !p || !Number.isFinite(p.fdv) || p.fdv <= 0 || !Number.isFinite(pts) || pts <= 0) return 0;
+        const fdvUsd = p.fdv * 1e9;
+        const poolUsd = fdvUsd * cfg.airdropPct;
+        const pointValueUsd = poolUsd / cfg.totalPoints;
+        return pts * pointValueUsd;
+      }
+
+      function updateProfileSummary() {
+        profileMeta.textContent = `Last update: ${localStorage.getItem(storageKeyDay) || airdropTodayKey}`;
+        profileList.innerHTML = "";
+        let total = 0;
+        let shownRows = 0;
+        Object.entries(AIRDROP_CONFIG).forEach(([slug, cfg]) => {
+          const pts = Number(savedPoints[slug] || 0);
+          if (!Number.isFinite(pts) || pts <= 0) return;
+          const val = estimateUserValue(slug, pts);
+          total += val;
+          shownRows += 1;
+
+          const row = document.createElement("div");
+          row.className = "profile-row";
+          row.innerHTML = `<span>${cfg.name}: ${pts.toLocaleString("en-US")} pts</span><span>${usd(val)}</span>`;
+          profileList.appendChild(row);
+        });
+
+        const compact = shownRows === 0;
+        profileList.style.display = compact ? "none" : "grid";
+        profileTotal.classList.toggle("compact", compact);
+        document.getElementById("profileCard")?.classList.toggle("compact", compact);
+        profileTotal.textContent = compact ? "No points entered yet" : `Estimated total: ${usd(total)}`;
+      }
+
+      updateAirdropChecker();
+      document.getElementById("notes").textContent = "";
+    }
+
+    run().catch((err) => {
+      const msg = err && err.message ? err.message : String(err);
+      document.getElementById("notes").textContent = `JS error: ${msg}`;
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
