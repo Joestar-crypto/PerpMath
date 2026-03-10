@@ -661,6 +661,52 @@
       backdrop-filter: blur(1px);
     }
 
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px 10px 4px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .site-title {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .site-title .t-perp {
+      color: #c8dde9;
+    }
+
+    .site-title .t-math {
+      color: var(--accent);
+      text-shadow: 0 0 18px rgba(0, 229, 160, 0.45);
+    }
+
+    .site-tagline {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-dim);
+      margin-top: 3px;
+    }
+
+    .site-header-sep {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(0,229,160,0.18) 35%, rgba(0,229,160,0.18) 65%, transparent 100%);
+    }
+
     .hero-overlay__credit:hover {
       border-color: rgba(0, 229, 160, 0.65);
       background: rgba(0, 229, 160, 0.11);
@@ -707,6 +753,13 @@
 </head>
 <body>
   <main class="wrap">
+    <header class="site-header">
+      <div>
+        <div class="site-title"><span class="t-perp">Perp</span><span class="t-math">Math</span></div>
+        <div class="site-tagline">Perp DEX Valuation &amp; Airdrop Map</div>
+      </div>
+      <div class="site-header-sep"></div>
+    </header>
     <div class="model-help-wrap" aria-label="Model help">
       <button class="model-help-btn" type="button" aria-label="Show model explanation">?</button>
       <div class="model-help-tip">
@@ -740,7 +793,7 @@
           <div class="airdrop-title">Airdrop checker</div>
           <div class="airdrop-legend" aria-label="Legend">
             <span class="airdrop-legend-sample" aria-hidden="true"></span>
-            <span>Time elapsed toward TGE</span>
+            <span>TGE Progress</span>
           </div>
           <div class="airdrop-list" id="airdropList"></div>
           <div class="airdrop-result" id="airdropResult">Click a project name to enter your points.</div>
@@ -1136,7 +1189,7 @@
       }
 
       function titleForMode() {
-        return "Future Token Value Model";
+        return "PERP DEX VALUATION MAP";
       }
 
       function usd(value) {
@@ -1254,8 +1307,8 @@
             title: {
               display: true,
               text: titleForMode(),
-              color: "#c8dde9",
-              font: { size: 19, weight: "700" },
+              color: "#00e5a0",
+              font: { size: 11, weight: "700", family: "Space Grotesk" },
               padding: { top: 6, bottom: 16 }
             },
             tooltip: {
