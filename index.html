@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Perps Ratio Map</title>
+  <title>PerpMath</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <link rel="apple-touch-icon" href="logo.png" />
   <!-- Open Graph / Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@JoestarCrypto" />
   <meta name="twitter:creator" content="@JoestarCrypto" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Perps Ratio Map — Airdrop Value Estimator" />
+  <meta property="og:title" content="PerpMath — Perp DEX Valuation &amp; Airdrop Map" />
   <meta property="og:description" content="Estimate your future airdrop earnings from top perp DEXs using a live valuation model." />
-  <meta property="og:image" content="https://pbs.twimg.com/profile_images/1899218924534517760/5LCBK5oS_400x400.jpg" />
-  <!-- ☝️ Replace og:image with your own hosted screenshot once the app is live -->
+  <meta property="og:image" content="https://perpmath.joestarcrypto.com/Twittercard.png" />
+  <meta name="twitter:image" content="https://perpmath.joestarcrypto.com/Twittercard.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
@@ -130,8 +132,42 @@
       padding: 6px;
       background: rgba(5, 10, 16, 0.75);
       box-shadow: inset 0 1px 0 rgba(0, 229, 160, 0.06);
-      display: flex;
     }
+
+    .ring-legend {
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .ring-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(160, 200, 218, 0.65);
+      user-select: none;
+    }
+
+    .ring-legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2.5px solid;
+      flex-shrink: 0;
+      background: transparent;
+    }
+
+    .ring-legend-dot.green  { border-color: #00e5a0; box-shadow: 0 0 6px rgba(0,229,160,0.4); }
+    .ring-legend-dot.orange { border-color: #ff9a4f; box-shadow: 0 0 6px rgba(255,154,79,0.4); }
 
     .chart-layout {
       display: grid;
@@ -641,7 +677,7 @@
 
     .hero-overlay__credit {
       position: fixed;
-      left: 14px;
+      left: 28px;
       bottom: 28px;
       z-index: 12;
       padding: 0.28rem 0.6rem 0.28rem 1.0rem;
@@ -775,6 +811,10 @@
     <div class="chart-layout">
       <div class="chart-box">
         <canvas id="chart"></canvas>
+        <div class="ring-legend" aria-label="Ring legend">
+          <div class="ring-legend-item"><span class="ring-legend-dot green"></span> Token launched</div>
+          <div class="ring-legend-item"><span class="ring-legend-dot orange"></span> Future token</div>
+        </div>
       </div>
       <div class="side-panel">
         <section class="profile-card" id="profileCard">
@@ -817,7 +857,7 @@
 
   <script>
     // ─── App URL ── change this once the site is deployed ───────────────────────
-    const APP_URL = "https://YOUR_APP_URL_HERE"; // ← replace with your domain
+    const APP_URL = "https://perpmath.joestarcrypto.com/";
     // ────────────────────────────────────────────────────────────────────────────
 
     const PROJECTS = [
@@ -1303,7 +1343,22 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { display: true, position: "bottom", labels: { boxWidth: 14, usePointStyle: false, color: "rgba(180,210,225,0.75)", font: { family: "Space Grotesk", size: 11 } } },
+            legend: { display: true, position: "bottom", labels: { boxWidth: 28, boxHeight: 2, usePointStyle: false, color: "rgba(180,210,225,0.75)", font: { family: "Space Grotesk", size: 11 },
+              generateLabels: (chart) => {
+                const defaults = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                return defaults.map(item => {
+                  if (item.text && item.text.startsWith("Median")) {
+                    item.lineDash = [7, 5];
+                    item.lineWidth = 2;
+                    item.pointStyle = "line";
+                    item.fillStyle = "transparent";
+                  } else {
+                    item.hidden = true;
+                  }
+                  return item;
+                }).filter(i => !i.hidden);
+              }
+            } },
             title: {
               display: true,
               text: titleForMode(),
@@ -1597,13 +1652,10 @@
               ``,
               `💰 Total: ${usd(total)}`,
               ``,
-              `Model by @JoestarCrypto`
+              `Check yours on 👉 https://perpmath.joestarcrypto.com/`
             ].join(`\n`);
             const intentUrl = new URL("https://twitter.com/intent/tweet");
             intentUrl.searchParams.set("text", tweet);
-            if (APP_URL && !APP_URL.includes("YOUR_APP_URL")) {
-              intentUrl.searchParams.set("url", APP_URL);
-            }
             shareBtn.href = intentUrl.toString();
           }
         }
