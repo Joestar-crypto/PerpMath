@@ -1036,6 +1036,70 @@
       margin: 0;
       padding: 0;
     }
+
+    /* ── Custom chart tooltip ── */
+    #chartTooltip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      background: rgba(7, 13, 22, 0.97);
+      border: 1px solid rgba(0, 229, 160, 0.22);
+      border-radius: 12px;
+      padding: 10px 13px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 24px rgba(0,229,160,0.07);
+      backdrop-filter: blur(18px);
+      min-width: 160px;
+      transition: opacity 100ms ease;
+      opacity: 0;
+    }
+    #chartTooltip.visible { opacity: 1; }
+    #chartTooltip .tt-name {
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #e0eeee;
+      margin-bottom: 7px;
+      letter-spacing: 0.01em;
+    }
+    #chartTooltip .tt-fdv {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: 0 0 14px rgba(0,229,160,0.35);
+      margin-bottom: 8px;
+      line-height: 1.1;
+    }
+    #chartTooltip .tt-fdv-label {
+      font-size: 9px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0,229,160,0.55);
+      display: block;
+      margin-bottom: 2px;
+    }
+    #chartTooltip .tt-rows {
+      display: grid;
+      gap: 3px;
+      border-top: 1px solid rgba(0,229,160,0.1);
+      padding-top: 7px;
+      margin-top: 2px;
+    }
+    #chartTooltip .tt-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 10.5px;
+      font-weight: 400;
+      color: rgba(160,200,218,0.65);
+    }
+    #chartTooltip .tt-row span:last-child {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      color: rgba(180,215,230,0.8);
+      text-align: right;
+    }
   </style>
 
   <!-- Structured Data -->
@@ -1066,6 +1130,7 @@
 </head>
 <body>
   <main class="wrap">
+    <div id="chartTooltip"></div>
     <header class="site-header">
       <div>
         <h1 class="site-title"><span class="t-perp">Perp</span><span class="t-math">Math</span></h1>
@@ -1692,20 +1757,39 @@
               padding: { top: 6, bottom: 16 }
             },
             tooltip: {
+              enabled: false,
               mode: "nearest",
               intersect: true,
-              callbacks: {
-                title: (items) => items[0]?.raw?.name || "Project",
-                label: (ctx) => {
-                  const p = ctx.raw;
-                  return [
-                    `FDV: ${fmtUsdCompactFromB(p.fdv)}${p.fdvEstimated ? " (estimated)" : ""}`,
-                    p.launched ? `MC: ${fmtUsdCompactFromB(p.mcap)}` : `Potential MC (35% FDV): ${fmtUsdCompactFromB(p.mcapFuture)}`,
-                    `Volume 7d: ${fmtUsdCompactFromB(p.avgVolume7d * 7)}`,
-                    `Open Interest: ${fmtUsdCompactFromB(p.avgOi7d)}`,
-                    `${p.valuationMetricType === "fees" ? "Fees" : (p.valuationMetricType === "proxy" ? "Proxy" : "Revenue")} 7d: ${fmtRevenueMFromB(p.valuationMetric7d)}`
-                  ];
-                }
+              external(context) {
+                const tooltip = context.tooltip;
+                const el = document.getElementById("chartTooltip");
+                if (!el) return;
+                if (tooltip.opacity === 0) { el.classList.remove("visible"); return; }
+                const p = tooltip.dataPoints?.[0]?.raw;
+                if (!p) return;
+                const fdvStr = fmtUsdCompactFromB(p.fdv);
+                const fdvLabel = p.fdvEstimated ? "Estimated FDV" : "FDV";
+                const mcapLine = p.launched
+                  ? `<div class="tt-row"><span>Market cap</span><span>${fmtUsdCompactFromB(p.mcap)}</span></div>`
+                  : `<div class="tt-row"><span>Potential MC (35%)</span><span>${fmtUsdCompactFromB(p.mcapFuture)}</span></div>`;
+                const metricLabel = p.valuationMetricType === "fees" ? "Fees 7d" : (p.valuationMetricType === "proxy" ? "Proxy metric" : "Revenue 7d");
+                el.innerHTML = `
+                  <div class="tt-name">${p.name}</div>
+                  <div class="tt-fdv"><span class="tt-fdv-label">${fdvLabel}</span>${fdvStr}</div>
+                  <div class="tt-rows">
+                    ${mcapLine}
+                    <div class="tt-row"><span>Volume 7d</span><span>${fmtUsdCompactFromB(p.avgVolume7d * 7)}</span></div>
+                    <div class="tt-row"><span>Open Interest</span><span>${fmtUsdCompactFromB(p.avgOi7d)}</span></div>
+                    <div class="tt-row"><span>${metricLabel}</span><span>${fmtRevenueMFromB(p.valuationMetric7d)}</span></div>
+                  </div>`;
+                const canvasRect = context.chart.canvas.getBoundingClientRect();
+                const x = canvasRect.left + tooltip.caretX;
+                const y = canvasRect.top + tooltip.caretY;
+                const offX = x + 200 > window.innerWidth ? -210 : 16;
+                const offY = y + 160 > window.innerHeight ? -160 : 8;
+                el.style.left = (x + offX) + "px";
+                el.style.top  = (y + offY) + "px";
+                el.classList.add("visible");
               }
             },
             datalabels: typeof ChartDataLabels !== "undefined" ? {
