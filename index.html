@@ -59,6 +59,10 @@
 
     html, body { overflow: hidden; }
 
+    @media (max-width: 760px) {
+      html, body { overflow: auto; }
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
@@ -747,6 +751,159 @@
       }
     }
 
+    /* ── Mobile (phones) ─────────────────────────────────────── */
+    @media (max-width: 760px) {
+      body {
+        padding: 0;
+        place-items: start;
+        align-items: stretch;
+      }
+
+      /* Full-width card, natural scroll */
+      .wrap {
+        width: 100%;
+        min-height: 100dvh;
+        height: auto;
+        overflow: visible;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        padding: 10px 10px 70px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .site-header {
+        padding: 0 2px 10px;
+        flex-shrink: 0;
+      }
+
+      .site-title {
+        font-size: 19px;
+      }
+
+      /* Stack: chart on top, side-panel below */
+      .chart-layout {
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        padding-top: 6px;
+        gap: 10px;
+      }
+
+      /* Chart takes a good fixed height — big but not full screen */
+      .chart-box {
+        height: clamp(240px, 62vw, 330px);
+        min-height: 240px;
+      }
+
+      canvas {
+        min-height: unset;
+      }
+
+      /* Profile + Airdrop side by side on medium phones, stacked otherwise */
+      .side-panel {
+        display: grid;
+        grid-template-rows: auto auto;
+        height: auto;
+        min-height: auto;
+        gap: 10px;
+      }
+
+      /* Profile card: compact single strip */
+      .profile-card {
+        padding: 10px 12px;
+      }
+
+      /* Airdrop panel: fixed height with internal scroll so panel stays compact */
+      .airdrop {
+        height: auto;
+        max-height: none;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      /* Airdrop list scrolls internally — shows ~3-4 items */
+      .airdrop-list {
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Prevent iOS auto-zoom on focus */
+      .airdrop-inline-input,
+      .airdrop-field input {
+        font-size: 16px;
+      }
+
+      /* Bigger touch targets */
+      .airdrop-item {
+        padding: 9px 10px;
+      }
+
+      .airdrop-select {
+        min-height: 40px;
+      }
+
+      .points-boost-btn {
+        padding: 8px 11px;
+        font-size: 11px;
+        min-height: 36px;
+      }
+
+      .model-help-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+      }
+
+      /* Tappable tooltip */
+      .model-help-tip {
+        width: min(92vw, 380px);
+        right: 0;
+      }
+
+      .model-help-btn.tip-open + .model-help-tip {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      /* Share & boost buttons */
+      .share-x-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        min-height: 32px;
+      }
+
+      .chart-legend-bar {
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .cl-item {
+        font-size: 9.5px;
+      }
+
+      /* Credit: centered at bottom on mobile */
+      .hero-overlay__credit {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 12px;
+      }
+
+      .hero-overlay__credit:hover {
+        transform: translateX(-50%) translateY(-1px);
+      }
+    }
+
     code {
       background: rgba(0, 229, 160, 0.1);
       border-radius: 4px;
@@ -1025,14 +1182,14 @@
       { name: "GRVT", slug: "grvt", launched: false, appUrl: "https://grvt.io/?ref=YMJG9L9", logo: "https://icons.llamao.fi/icons/protocols/grvt?w=128&h=128", avgVolume7d: 36.371 / 30, avgOi7d: 0.46723, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama protocol page, no token" },
       { name: "Vest Markets", slug: "vest-markets", launched: false, appUrl: "https://trade.vestmarkets.com/join/8V7W3", logo: "https://icons.llamao.fi/icons/protocols/vest-markets?w=128&h=128", avgVolume7d: 1.241 / 30, avgOi7d: 0.06144, revenue7d: null, fees7d: 0.000517707 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
       { name: "Ostium", slug: "ostium", launched: false, appUrl: "https://ostium.app/trade?ref=3SSCB", logo: "https://icons.llamao.fi/icons/protocols/ostium?w=128&h=128", avgVolume7d: 4.489 / 30, avgOi7d: 0.22936, revenue7d: 0.012 / 52, fees7d: 0.01813 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
-      { name: "StandX", slug: "standx", launched: false, appUrl: "https://defillama.com/protocol/standx?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/standx?w=128&h=128", avgVolume7d: 17.545 / 30, avgOi7d: 0.03578, revenue7d: 0.000292776 / 52, fees7d: 0.00111 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" },
+      { name: "StandX", slug: "standx", launched: false, appUrl: "https://defillama.com/protocol/standx?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/standx?w=128&h=128", avgVolume7d: 17.545 / 30, avgOi7d: 0.234, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama OI paywalled; raw data = $36M stale). Fees: near-zero protocol revenue ($11K/7d to LP-heavy model) → proxy model used" },
       { name: "01 Exchange", slug: "01-exchange", launched: false, appUrl: "https://defillama.com/protocol/01-exchange", logo: "https://icons.llamao.fi/icons/protocols/01-exchange?w=128&h=128", avgVolume7d: 1.035 / 30, avgOi7d: 0.00459, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest" },
-      { name: "Reya", slug: "reya", launched: false, appUrl: "https://app.reya.xyz/trade?referredBy=12ovqft8", logo: "https://icons.llamao.fi/icons/protocols/reya?w=128&h=128", avgVolume7d: 9.56 / 30, avgOi7d: 0.02106, revenue7d: 0.000380518 / 52, fees7d: 0.00214 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" },
+      { name: "Reya", slug: "reya", launched: false, appUrl: "https://app.reya.xyz/trade?referredBy=12ovqft8", logo: "https://icons.llamao.fi/icons/protocols/reya?w=128&h=128", avgVolume7d: 9.56 / 30, avgOi7d: 0.127, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama slug=reya-perps; raw OI $21M stale). Fees: near-zero protocol revenue ($13K/7d LP-heavy) → proxy model used" },
       { name: "Nado", slug: "nado", launched: false, appUrl: "https://defillama.com/protocol/nado?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/nado?w=128&h=128", avgVolume7d: 11.025 / 30, avgOi7d: 0.0926, revenue7d: 0.02039 / 52, fees7d: 0.02862 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" }
     ];
 
-    const API_CACHE_KEY = "perp.defillama.dailyCache.v2";
-    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v2";
+    const API_CACHE_KEY = "perp.defillama.dailyCache.v3";
+    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v3";
 
     const AIRDROP_CONFIG = {
       nado: { name: "Nado", airdropPct: 0.25, totalPoints: 34700000, note: "25% airdrop / 34.7M points" },
@@ -1431,13 +1588,48 @@
           if (pointDatasetIndex < 0) return;
           const meta = chart.getDatasetMeta(pointDatasetIndex);
           const ctx = chart.ctx;
+          const r = 14;
 
-          currentPoints.forEach((p, i) => {
+          // Collect raw pixel positions from Chart.js (used for hit-detection / tooltips — untouched)
+          const raw = currentPoints.map((p, i) => {
             const el = meta.data[i];
-            if (!el) return;
+            if (!el) return null;
             const { x, y } = el.getProps(["x", "y"], true);
+            return { x, y };
+          });
+
+          // Iterative repulsion — visual positions only, capped to maxNudge px from origin
+          const minDist = r * 2 + 4;
+          const maxNudge = 36;
+          const pos = raw.map(p => p ? { ...p } : null);
+          for (let iter = 0; iter < 50; iter++) {
+            let moved = false;
+            for (let i = 0; i < pos.length; i++) {
+              if (!pos[i]) continue;
+              for (let j = i + 1; j < pos.length; j++) {
+                if (!pos[j]) continue;
+                const dx = pos[j].x - pos[i].x;
+                const dy = pos[j].y - pos[i].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < minDist && dist > 0.01) {
+                  const push = (minDist - dist) / 2 + 0.5;
+                  const nx = (dx / dist) * push;
+                  const ny = (dy / dist) * push;
+                  const ni = { x: pos[i].x - nx, y: pos[i].y - ny };
+                  const nj = { x: pos[j].x + nx, y: pos[j].y + ny };
+                  if (Math.hypot(ni.x - raw[i].x, ni.y - raw[i].y) <= maxNudge) { pos[i] = ni; moved = true; }
+                  if (Math.hypot(nj.x - raw[j].x, nj.y - raw[j].y) <= maxNudge) { pos[j] = nj; moved = true; }
+                }
+              }
+            }
+            if (!moved) break;
+          }
+
+          // Draw logos at visually resolved positions
+          currentPoints.forEach((p, i) => {
+            if (!pos[i]) return;
+            const { x, y } = pos[i];
             const ring = p.launched ? "#00e5a0" : "#ff9a4f";
-            const r = 14;
 
             ctx.save();
             ctx.beginPath();
@@ -1797,6 +1989,24 @@
       updateAirdropChecker();
       document.getElementById("notes").textContent = "";
     }
+
+    // Mobile: tap to toggle model help tip
+    (function () {
+      const btn = document.querySelector('.model-help-btn');
+      const tip = document.querySelector('.model-help-tip');
+      if (!btn || !tip) return;
+      btn.addEventListener('click', (e) => {
+        if (window.matchMedia('(hover: none)').matches || window.innerWidth <= 760) {
+          e.stopPropagation();
+          btn.classList.toggle('tip-open');
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!btn.contains(e.target) && !tip.contains(e.target)) {
+          btn.classList.remove('tip-open');
+        }
+      });
+    })();
 
     run().catch((err) => {
       const msg = err && err.message ? err.message : String(err);
