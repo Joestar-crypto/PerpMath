@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://perpmath.joestarcrypto.com/sitemap.xml
