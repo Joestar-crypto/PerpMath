@@ -1051,6 +1051,7 @@
       min-width: 160px;
       transition: opacity 100ms ease;
       opacity: 0;
+      will-change: left, top;
     }
     #chartTooltip.visible { opacity: 1; }
     #chartTooltip .tt-name {
@@ -1245,16 +1246,16 @@
       { name: "Pacifica", slug: "pacifica", launched: false, appUrl: "https://defillama.com/protocol/pacifica", logo: "https://icons.llamao.fi/icons/protocols/pacifica?w=128&h=128", avgVolume7d: 0.49654, avgOi7d: 0.20767, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
       { name: "Extended", slug: "extended", launched: false, appUrl: "https://app.extended.exchange/join/JOESTARCRYPTO", logo: "https://icons.llamao.fi/icons/protocols/extended?w=128&h=128", avgVolume7d: 2.72407, avgOi7d: 1.13931, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
       { name: "GRVT", slug: "grvt", launched: false, appUrl: "https://grvt.io/?ref=YMJG9L9", logo: "https://icons.llamao.fi/icons/protocols/grvt?w=128&h=128", avgVolume7d: 36.371 / 30, avgOi7d: 0.46723, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama protocol page, no token" },
-      { name: "Vest Markets", slug: "vest-markets", launched: false, appUrl: "https://trade.vestmarkets.com/join/8V7W3", logo: "https://icons.llamao.fi/icons/protocols/vest-markets?w=128&h=128", avgVolume7d: 1.241 / 30, avgOi7d: 0.06144, revenue7d: null, fees7d: 0.000517707 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
+      { name: "Vest Markets", slug: "vest-markets", proxyOnly: true, launched: false, appUrl: "https://trade.vestmarkets.com/join/8V7W3", logo: "https://icons.llamao.fi/icons/protocols/vest-markets?w=128&h=128", avgVolume7d: 1.241 / 30, avgOi7d: 0.031, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.10 peer ratio (raw $61M stale). Fees: $6.75K/7d → LP-heavy, near-zero protocol revenue → proxy model used" },
       { name: "Ostium", slug: "ostium", launched: false, appUrl: "https://ostium.app/trade?ref=3SSCB", logo: "https://icons.llamao.fi/icons/protocols/ostium?w=128&h=128", avgVolume7d: 4.489 / 30, avgOi7d: 0.22936, revenue7d: 0.012 / 52, fees7d: 0.01813 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
-      { name: "StandX", slug: "standx", launched: false, appUrl: "https://defillama.com/protocol/standx?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/standx?w=128&h=128", avgVolume7d: 17.545 / 30, avgOi7d: 0.234, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama OI paywalled; raw data = $36M stale). Fees: near-zero protocol revenue ($11K/7d to LP-heavy model) → proxy model used" },
+      { name: "StandX", slug: "standx", proxyOnly: true, launched: false, appUrl: "https://defillama.com/protocol/standx?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/standx?w=128&h=128", avgVolume7d: 17.545 / 30, avgOi7d: 0.234, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama OI paywalled; raw data = $36M stale). Fees: near-zero protocol revenue ($11K/7d to LP-heavy model) → proxy model used" },
       { name: "01 Exchange", slug: "01-exchange", launched: false, appUrl: "https://defillama.com/protocol/01-exchange", logo: "https://icons.llamao.fi/icons/protocols/01-exchange?w=128&h=128", avgVolume7d: 1.035 / 30, avgOi7d: 0.00459, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest" },
-      { name: "Reya", slug: "reya", launched: false, appUrl: "https://app.reya.xyz/trade?referredBy=12ovqft8", logo: "https://icons.llamao.fi/icons/protocols/reya?w=128&h=128", avgVolume7d: 9.56 / 30, avgOi7d: 0.127, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama slug=reya-perps; raw OI $21M stale). Fees: near-zero protocol revenue ($13K/7d LP-heavy) → proxy model used" },
+      { name: "Reya", slug: "reya", proxyOnly: true, launched: false, appUrl: "https://app.reya.xyz/trade?referredBy=12ovqft8", logo: "https://icons.llamao.fi/icons/protocols/reya?w=128&h=128", avgVolume7d: 9.56 / 30, avgOi7d: 0.127, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.4 peer ratio (DefiLlama slug=reya-perps; raw OI $21M stale). Fees: near-zero protocol revenue ($13K/7d LP-heavy) → proxy model used" },
       { name: "Nado", slug: "nado", launched: false, appUrl: "https://defillama.com/protocol/nado?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/nado?w=128&h=128", avgVolume7d: 11.025 / 30, avgOi7d: 0.0926, revenue7d: 0.02039 / 52, fees7d: 0.02862 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" }
     ];
 
-    const API_CACHE_KEY = "perp.defillama.dailyCache.v3";
-    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v3";
+    const API_CACHE_KEY = "perp.defillama.dailyCache.v5";
+    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v5";
 
     const AIRDROP_CONFIG = {
       nado: { name: "Nado", airdropPct: 0.25, totalPoints: 34700000, note: "25% airdrop / 34.7M points" },
@@ -1438,11 +1439,11 @@
           const key = out.revenueSlug || out.slug;
           const revenue = revenueMap.get(key);
           const fees = feesMap.get(key);
-          if (Number.isFinite(revenue) && revenue >= 0) {
+          if (!out.proxyOnly && Number.isFinite(revenue) && revenue >= 0) {
             out.revenue7d = revenue;
             out.apiUsed.push(`fees.${key}`);
           }
-          if (Number.isFinite(fees) && fees >= 0) {
+          if (!out.proxyOnly && Number.isFinite(fees) && fees >= 0) {
             out.fees7d = fees;
             out.apiUsed.push(`feesData.${key}`);
           }
@@ -1646,6 +1647,9 @@
         }
       };
 
+      // Shared: visual (repulsion-resolved) positions, populated by logoPlugin on every draw
+      let _resolvedPositions = [];
+
       const logoPlugin = {
         id: "logoPlugin",
         afterDatasetsDraw(chart) {
@@ -1655,7 +1659,7 @@
           const ctx = chart.ctx;
           const r = 14;
 
-          // Collect raw pixel positions from Chart.js (used for hit-detection / tooltips — untouched)
+          // Collect raw pixel positions from Chart.js
           const raw = currentPoints.map((p, i) => {
             const el = meta.data[i];
             if (!el) return null;
@@ -1690,6 +1694,9 @@
             if (!moved) break;
           }
 
+          // Publish resolved positions for custom hit-detection
+          _resolvedPositions = pos;
+
           // Draw logos at visually resolved positions
           currentPoints.forEach((p, i) => {
             if (!pos[i]) return;
@@ -1723,7 +1730,63 @@
       if (typeof ChartDataLabels !== "undefined") pluginsToRegister.push(ChartDataLabels);
       Chart.register(...pluginsToRegister);
 
+      // ── Custom tooltip via visual hit-detection on resolved positions ──────────
+      let _mouseX = 0, _mouseY = 0;
+
+      function showTooltip(p) {
+        const el = document.getElementById("chartTooltip");
+        if (!el) return;
+        const fdvStr = fmtUsdCompactFromB(p.fdv);
+        const fdvLabel = p.fdvEstimated ? "Estimated FDV" : "FDV";
+        const mcapLine = p.launched
+          ? `<div class="tt-row"><span>Market cap</span><span>${fmtUsdCompactFromB(p.mcap)}</span></div>`
+          : `<div class="tt-row"><span>Potential MC (35%)</span><span>${fmtUsdCompactFromB(p.mcapFuture)}</span></div>`;
+        const metricLabel = p.valuationMetricType === "fees" ? "Fees 7d" : (p.valuationMetricType === "proxy" ? "Proxy metric" : "Revenue 7d");
+        el.innerHTML = `
+          <div class="tt-name">${p.name}</div>
+          <div class="tt-fdv"><span class="tt-fdv-label">${fdvLabel}</span>${fdvStr}</div>
+          <div class="tt-rows">
+            ${mcapLine}
+            <div class="tt-row"><span>Volume 7d</span><span>${fmtUsdCompactFromB(p.avgVolume7d * 7)}</span></div>
+            <div class="tt-row"><span>Open Interest</span><span>${fmtUsdCompactFromB(p.avgOi7d)}</span></div>
+            <div class="tt-row"><span>${metricLabel}</span><span>${fmtRevenueMFromB(p.valuationMetric7d)}</span></div>
+          </div>`;
+        const ttW = el.offsetWidth || 200;
+        const ttH = el.offsetHeight || 180;
+        const offX = _mouseX + ttW + 20 > window.innerWidth ? -(ttW + 12) : 16;
+        const offY = _mouseY + ttH + 12 > window.innerHeight ? -(ttH - 8) : 8;
+        el.style.left = (_mouseX + offX) + "px";
+        el.style.top  = (_mouseY + offY) + "px";
+        el.classList.add("visible");
+      }
+
+      function hideTooltip() {
+        document.getElementById("chartTooltip")?.classList.remove("visible");
+      }
+
       const c = document.getElementById("chart");
+      c.addEventListener("mousemove", (e) => {
+        _mouseX = e.clientX;
+        _mouseY = e.clientY;
+        const rect = c.getBoundingClientRect();
+        const cx = e.clientX - rect.left;
+        const cy = e.clientY - rect.top;
+        const HIT_R = 18;
+        let best = null, bestDist = Infinity;
+        _resolvedPositions.forEach((pos, i) => {
+          if (!pos) return;
+          const d = Math.hypot(cx - pos.x, cy - pos.y);
+          if (d < HIT_R && d < bestDist) { bestDist = d; best = i; }
+        });
+        if (best !== null) {
+          showTooltip(currentPoints[best]);
+          c.style.cursor = "pointer";
+        } else {
+          hideTooltip();
+          c.style.cursor = "";
+        }
+      });
+      c.addEventListener("mouseleave", hideTooltip);
       const chart = new Chart(c, {
         type: "scatter",
         data: {
@@ -1757,40 +1820,7 @@
               padding: { top: 6, bottom: 16 }
             },
             tooltip: {
-              enabled: false,
-              mode: "nearest",
-              intersect: true,
-              external(context) {
-                const tooltip = context.tooltip;
-                const el = document.getElementById("chartTooltip");
-                if (!el) return;
-                if (tooltip.opacity === 0) { el.classList.remove("visible"); return; }
-                const p = tooltip.dataPoints?.[0]?.raw;
-                if (!p) return;
-                const fdvStr = fmtUsdCompactFromB(p.fdv);
-                const fdvLabel = p.fdvEstimated ? "Estimated FDV" : "FDV";
-                const mcapLine = p.launched
-                  ? `<div class="tt-row"><span>Market cap</span><span>${fmtUsdCompactFromB(p.mcap)}</span></div>`
-                  : `<div class="tt-row"><span>Potential MC (35%)</span><span>${fmtUsdCompactFromB(p.mcapFuture)}</span></div>`;
-                const metricLabel = p.valuationMetricType === "fees" ? "Fees 7d" : (p.valuationMetricType === "proxy" ? "Proxy metric" : "Revenue 7d");
-                el.innerHTML = `
-                  <div class="tt-name">${p.name}</div>
-                  <div class="tt-fdv"><span class="tt-fdv-label">${fdvLabel}</span>${fdvStr}</div>
-                  <div class="tt-rows">
-                    ${mcapLine}
-                    <div class="tt-row"><span>Volume 7d</span><span>${fmtUsdCompactFromB(p.avgVolume7d * 7)}</span></div>
-                    <div class="tt-row"><span>Open Interest</span><span>${fmtUsdCompactFromB(p.avgOi7d)}</span></div>
-                    <div class="tt-row"><span>${metricLabel}</span><span>${fmtRevenueMFromB(p.valuationMetric7d)}</span></div>
-                  </div>`;
-                const canvasRect = context.chart.canvas.getBoundingClientRect();
-                const x = canvasRect.left + tooltip.caretX;
-                const y = canvasRect.top + tooltip.caretY;
-                const offX = x + 200 > window.innerWidth ? -210 : 16;
-                const offY = y + 160 > window.innerHeight ? -160 : 8;
-                el.style.left = (x + offX) + "px";
-                el.style.top  = (y + offY) + "px";
-                el.classList.add("visible");
-              }
+              enabled: false
             },
             datalabels: typeof ChartDataLabels !== "undefined" ? {
               offset: 10,
