@@ -915,7 +915,7 @@
 
     .hero-overlay__credit {
       position: fixed;
-      right: 28px;
+      left: 28px;
       bottom: 28px;
       z-index: 12;
       padding: 0.28rem 0.6rem 0.28rem 1.0rem;
@@ -1162,7 +1162,7 @@
           </div>
           <div class="mh-step">
             <span class="mh-n">⑤</span>
-            <div class="mh-formula">$\displaystyle \text{Ratio} = \frac{\text{ModelFDV}}{\text{FDV}_{\text{live}}}$ <span class="mh-note">(launched tokens)</span></div>
+            <div class="mh-formula">$\displaystyle \text{Ratio} = \frac{\text{ModelFDV}}{\text{FDV}_{\text{live}}}$ <span class="mh-note">(launched tokens, Paradex &amp; Lighter ×3)</span></div>
           </div>
           <div class="mh-step">
             <span class="mh-n">⑥</span>
@@ -1179,7 +1179,7 @@
             <svg width="28" height="10" viewBox="0 0 28 10" fill="none" aria-hidden="true">
               <line x1="0" y1="5" x2="28" y2="5" stroke="#e05a3a" stroke-width="2" stroke-dasharray="6 4"/>
             </svg>
-            <span>Median</span>
+            <span>Weighted Ratio</span>
           </div>
           <div class="cl-sep"></div>
           <div class="cl-item"><span class="cl-dot green"></span> Token launched</div>
@@ -1237,14 +1237,14 @@
       { name: "Avantis", slug: "avantis", launched: true, logo: "https://icons.llamao.fi/icons/protocols/avantis?w=128&h=128", avgVolume7d: (4.236 * 7 / 30) / 7, avgOi7d: 0.01624, revenue7d: null, fdv: 0.15713, source: "30d volume -> 7d avg, protocol OI" },
       { name: "GMX", slug: "gmx", revenueSlug: "gmx-v2-perps", launched: true, logo: "https://icons.llamao.fi/icons/protocols/gmx?w=128&h=128", avgVolume7d: (4.694 * 7 / 30) / 7, avgOi7d: 0.07631, revenue7d: 0.477024, fdv: 0.06486, source: "30d volume -> 7d avg, protocol OI + fees" },
       { name: "dYdX", slug: "dydx", revenueSlug: "dydx-v4", launched: true, logo: "https://icons.llamao.fi/icons/protocols/dydx?w=128&h=128", avgVolume7d: (4.928 * 7 / 30) / 7, avgOi7d: 0.04219, revenue7d: 0.081854, fdv: 0.07781, source: "30d volume -> 7d avg, protocol OI + fees" },
-      { name: "Paradex", slug: "paradex", launched: true, logo: "https://icons.llamao.fi/icons/protocols/paradex?w=128&h=128", avgVolume7d: (10.24 / 30), avgOi7d: 0.30754, revenue7d: null, fees7d: 0.00673 / 52, fdv: 0.043121696, source: "DefiLlama protocol page (fees annualized), FDV CoinGecko" },
+      { name: "Paradex", slug: "paradex", revenueSlug: "paradex-perps", launched: true, logo: "https://icons.llamao.fi/icons/protocols/paradex?w=128&h=128", avgVolume7d: (10.24 / 30), avgOi7d: 0.30754, revenue7d: null, fees7d: 0.000058, fdv: 0.0379, source: "DefiLlama fees (paradex-perps slug, $58K/7d), FDV CoinMarketCap ($37.9M)" },
       { name: "Drift", slug: "drift", launched: true, logo: "https://icons.llamao.fi/icons/protocols/drift?w=128&h=128", avgVolume7d: 2.528 / 30, avgOi7d: 0.13083, revenue7d: 0.00772 / 52, fees7d: 0.01957 / 52, fdv: 0.08167, mcap: 0.04752, source: "DefiLlama protocol page" },
       { name: "ApeX Protocol", slug: "apex-protocol", revenueSlug: "apex-omni", launched: true, logo: "https://icons.llamao.fi/icons/protocols/apex-protocol?w=128&h=128", avgVolume7d: 36.93 / 30, avgOi7d: 0.10924, revenue7d: 0.00257 / 52, fees7d: 0.00514 / 52, fdv: 0.13952, mcap: 0.03843, source: "DefiLlama protocol page" },
       { name: "Gains Network", slug: "gains-network", launched: true, logo: "https://icons.llamao.fi/icons/protocols/gains-network?w=128&h=128", avgVolume7d: 1.615 / 30, avgOi7d: 0.02214, revenue7d: 0.00589 / 52, fees7d: 0.009 / 52, fdv: 0.01945, mcap: 0.01945, source: "DefiLlama protocol page (OI fallback TVL)" },
       { name: "Variational", slug: "variational", launched: false, appUrl: "https://omni.variational.io/?ref=OMNIJOESTAR", logo: "https://icons.llamao.fi/icons/protocols/variational?w=128&h=128", avgVolume7d: (28.197 / 30), avgOi7d: 0.69797, revenue7d: 0.00085, fees7d: null, fdv: null, source: "Perp 30d volume + OI (protocol page), user revenue 1.7M/14d, no token" },
       { name: "edgeX", slug: "edgex", revenueSlug: "edgex-perps", launched: false, appUrl: "https://pro.edgex.exchange/en-US/referral/963522466", logo: "https://icons.llamao.fi/icons/protocols/edgex?w=128&h=128", avgVolume7d: 15.661 / 7, avgOi7d: 1.027, revenue7d: 3.16659, fdv: null, source: "Reported 7d + OI (derivatives/protocol)" },
       { name: "Pacifica", slug: "pacifica", launched: false, appUrl: "https://defillama.com/protocol/pacifica", logo: "https://icons.llamao.fi/icons/protocols/pacifica?w=128&h=128", avgVolume7d: 0.49654, avgOi7d: 0.20767, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
-      { name: "Extended", slug: "extended", launched: false, appUrl: "https://app.extended.exchange/join/JOESTARCRYPTO", logo: "https://icons.llamao.fi/icons/protocols/extended?w=128&h=128", avgVolume7d: 2.72407, avgOi7d: 1.13931, revenue7d: null, fdv: null, source: "Estimated via TVL and peer multipliers" },
+      { name: "Extended", slug: "extended", launched: false, appUrl: "https://app.extended.exchange/join/JOESTARCRYPTO", logo: "https://icons.llamao.fi/icons/protocols/extended?w=128&h=128", avgVolume7d: 2.61575 / 7, avgOi7d: 1.13931, revenue7d: null, fdv: null, source: "DefiLlama derivatives API (7d volume); OI estimated" },
       { name: "GRVT", slug: "grvt", launched: false, appUrl: "https://grvt.io/?ref=YMJG9L9", logo: "https://icons.llamao.fi/icons/protocols/grvt?w=128&h=128", avgVolume7d: 36.371 / 30, avgOi7d: 0.46723, revenue7d: null, fees7d: null, fdv: null, source: "DefiLlama protocol page, no token" },
       { name: "Vest Markets", slug: "vest-markets", proxyOnly: true, launched: false, appUrl: "https://trade.vestmarkets.com/join/8V7W3", logo: "https://icons.llamao.fi/icons/protocols/vest-markets?w=128&h=128", avgVolume7d: 1.241 / 30, avgOi7d: 0.031, revenue7d: null, fees7d: null, fdv: null, source: "Vol: DefiLlama 30d. OI: estimated from vol×0.10 peer ratio (raw $61M stale). Fees: $6.75K/7d → LP-heavy, near-zero protocol revenue → proxy model used" },
       { name: "Ostium", slug: "ostium", launched: false, appUrl: "https://ostium.app/trade?ref=3SSCB", logo: "https://icons.llamao.fi/icons/protocols/ostium?w=128&h=128", avgVolume7d: 4.489 / 30, avgOi7d: 0.22936, revenue7d: 0.012 / 52, fees7d: 0.01813 / 52, fdv: null, source: "DefiLlama protocol page, no token" },
@@ -1254,8 +1254,8 @@
       { name: "Nado", slug: "nado", launched: false, appUrl: "https://defillama.com/protocol/nado?perpVolume=true", logo: "https://icons.llamao.fi/icons/protocols/nado?w=128&h=128", avgVolume7d: 11.025 / 30, avgOi7d: 0.0926, revenue7d: 0.02039 / 52, fees7d: 0.02862 / 52, fdv: null, source: "DefiLlama key metrics: Perp Volume 30d, Open Interest, annualized revenue/fees" }
     ];
 
-    const API_CACHE_KEY = "perp.defillama.dailyCache.v5";
-    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v5";
+    const API_CACHE_KEY = "perp.defillama.dailyCache.v7";
+    const API_CACHE_DAY_KEY = "perp.defillama.dailyCache.day.v7";
 
     const AIRDROP_CONFIG = {
       nado: { name: "Nado", airdropPct: 0.25, totalPoints: 34700000, note: "25% airdrop / 34.7M points" },
@@ -1509,7 +1509,16 @@
       });
 
       const launched = enriched.filter((p) => p.launched && Number.isFinite(p.ratioFdv));
-      const medianLaunchedRatio = median(launched.map((p) => p.ratioFdv).filter((v) => Number.isFinite(v) && v > 0));
+      // Paradex and Lighter are the closest peers to unlaunched perp DEXs → weight ×3
+      const PEER_WEIGHTS = { paradex: 3, lighter: 3 };
+      const validLaunched = launched.filter((p) => p.ratioFdv > 0);
+      let _wSum = 0, _wTotal = 0;
+      for (const p of validLaunched) {
+        const w = PEER_WEIGHTS[p.slug] ?? 1;
+        _wSum += p.ratioFdv * w;
+        _wTotal += w;
+      }
+      const medianLaunchedRatio = _wTotal > 0 ? _wSum / _wTotal : null;
 
       enriched.forEach((p) => {
         if (!p.launched && Number.isFinite(p.fdvModel) && Number.isFinite(medianLaunchedRatio) && medianLaunchedRatio > 0) {
@@ -1548,23 +1557,16 @@
         }));
 
       function buildPlotPoints() {
-        const launchedRatios = pointsBase
-          .filter((p) => p.launched)
-          .map((p) => p.ratioFdv)
-          .filter((v) => Number.isFinite(v) && v > 0);
-        const launchedMedian = median(launchedRatios);
-
         const rows = pointsBase
           .map((p) => {
             if (!p.launched) {
-              if (!Number.isFinite(p.fdvModel) || !Number.isFinite(launchedMedian) || launchedMedian <= 0) return null;
-              const fdvEstimated = p.fdvModel / launchedMedian;
+              // Use the weighted ratio + FDV already computed in enrichment phase
+              if (!Number.isFinite(p.fdv) || !Number.isFinite(p.ratioFdv) || p.ratioFdv <= 0) return null;
               return {
                 ...p,
-                x: fdvEstimated,
-                ratio: launchedMedian,
-                y: launchedMedian,
-                fdv: fdvEstimated,
+                x: p.fdv,
+                ratio: p.ratioFdv,
+                y: p.ratioFdv,
                 fdvEstimated: true
               };
             }
@@ -1929,8 +1931,10 @@
         });
         activePointsInput = selectedAirdropSlug ? (item?.querySelector(".airdrop-inline-input") || null) : null;
         if (activePointsInput) {
-          activePointsInput.value = Number.isFinite(Number(savedPoints[selectedAirdropSlug])) ? String(savedPoints[selectedAirdropSlug]) : "0";
+          const saved = savedPoints[selectedAirdropSlug];
+          activePointsInput.value = (Number.isFinite(Number(saved)) && Number(saved) > 0) ? String(saved) : "";
           activePointsInput.focus();
+          activePointsInput.select();
         }
         updateAirdropChecker();
       }
@@ -1958,7 +1962,7 @@
           `<a class="points-boost-btn ${(p?.appUrl && boostEnabled.has(slug)) ? "" : "disabled"}" href="${(p?.appUrl && boostEnabled.has(slug)) ? p.appUrl : "#"}" target="_blank" rel="noopener noreferrer">Points boost</a>`,
           `<div class="airdrop-inline" hidden>`,
           `<div class="airdrop-inline-label">My points on ${cfg.name}</div>`,
-          `<input class="airdrop-inline-input" type="number" min="0" step="any" value="0" />`,
+          `<input class="airdrop-inline-input" type="number" min="0" step="any" placeholder="0" />`,
           `</div>`
         ].join("");
 
