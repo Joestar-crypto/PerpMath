@@ -42,9 +42,6 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
     onload="renderMathInElement(document.getElementById('modelHelpTip'),{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false})"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <style>
     :root {
       --bg: #070b0f;
@@ -1110,6 +1107,62 @@
       color: rgba(180,215,230,0.8);
       text-align: right;
     }
+
+    /* ── Loading overlay ─────────────────────────────────────── */
+    #pm-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #070b0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      transition: opacity 0.55s ease, visibility 0.55s ease;
+    }
+    #pm-loader.done {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    #pm-loader-logo {
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      gap: 0;
+    }
+    #pm-loader-logo .t-perp { color: #c8dde9; }
+    #pm-loader-logo .t-math { color: #00e5a0; }
+    #pm-loader-track {
+      width: 220px;
+      height: 3px;
+      background: rgba(0, 229, 160, 0.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    #pm-loader-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5a0, #00c8ff);
+      border-radius: 99px;
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+      animation: pm-boot 2.2s ease-out forwards;
+    }
+    @keyframes pm-boot {
+      from { width: 0% }
+      to   { width: 18% }
+    }
+    #pm-loader-status {
+      font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0, 229, 160, 0.45);
+    }
   </style>
 
   <!-- Structured Data -->
@@ -1139,6 +1192,11 @@
   </script>
 </head>
 <body>
+  <div id="pm-loader" role="status" aria-live="polite">
+    <div id="pm-loader-logo"><span class="t-perp">Perp</span><span class="t-math">Math</span></div>
+    <div id="pm-loader-track"><div id="pm-loader-bar"></div></div>
+    <div id="pm-loader-status">Loading...</div>
+  </div>
   <main class="wrap">
     <div id="chartTooltip"></div>
     <header class="site-header">
@@ -1234,6 +1292,9 @@
     </span>
   </a>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <script>
     // ─── App URL ── change this once the site is deployed ───────────────────────
     const APP_URL = "https://perpmath.joestarcrypto.com/";
@@ -1316,8 +1377,16 @@
 
     async function enrichWithFreeApi(project) {
       const out = { ...project, apiUsed: [] };
-      try {
-        const p = await getJson(`https://api.llama.fi/protocol/${project.slug}`);
+
+      // Fire all 3 requests in parallel instead of sequentially
+      const [protocolRes, volRes, oiRes] = await Promise.allSettled([
+        getJson(`https://api.llama.fi/protocol/${project.slug}`),
+        getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=dailyVolume`),
+        getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=openInterest`)
+      ]);
+
+      if (protocolRes.status === "fulfilled") {
+        const p = protocolRes.value;
         if (Number.isFinite(Number(p.fdv)) && Number(p.fdv) > 0) {
           out.fdv = Number(p.fdv) / 1e9;
           out.apiUsed.push("protocol.fdv");
@@ -1329,28 +1398,25 @@
         if (p.logo && typeof p.logo === "string") {
           out.logo = p.logo;
         }
-      } catch (_) {
-        // Keep fallback values
       }
 
-      // Free endpoint attempted first. DefiLlama can throttle it, so fallback remains in place.
-      try {
-        const vol = await getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=dailyVolume`);
+      if (volRes.status === "fulfilled") {
+        const vol = volRes.value;
         const avgVol = avg7FromChart(vol.totalDataChart || vol.totalDataChartBreakdown);
         if (Number.isFinite(avgVol) && avgVol > 0) {
           out.avgVolume7d = avgVol;
           out.apiUsed.push("summary.dailyVolume");
         }
-      } catch (_) {}
+      }
 
-      try {
-        const oi = await getJson(`https://api.llama.fi/summary/derivatives/${project.slug}?dataType=openInterest`);
+      if (oiRes.status === "fulfilled") {
+        const oi = oiRes.value;
         const avgOi = avg7FromChart(oi.totalDataChart || oi.totalDataChartBreakdown);
         if (Number.isFinite(avgOi) && avgOi > 0) {
           out.avgOi7d = avgOi;
           out.apiUsed.push("summary.openInterest");
         }
-      } catch (_) {}
+      }
 
       return out;
     }
@@ -1423,7 +1489,19 @@
       });
     }
 
+    function setProgress(pct, msg) {
+      const bar = document.getElementById("pm-loader-bar");
+      const status = document.getElementById("pm-loader-status");
+      if (bar) { bar.style.animation = "none"; bar.style.width = pct + "%"; }
+      if (status && msg) status.textContent = msg;
+    }
+
+    function hideLoader() {
+      document.getElementById("pm-loader")?.classList.add("done");
+    }
+
     async function run() {
+      setProgress(20, "Initializing...");
       const todayKey = new Date().toISOString().slice(0, 10);
       const cacheDay = localStorage.getItem(API_CACHE_DAY_KEY);
       const cachedRaw = localStorage.getItem(API_CACHE_KEY);
@@ -1434,6 +1512,7 @@
           const parsed = JSON.parse(cachedRaw);
           if (Array.isArray(parsed) && parsed.length) {
             enriched = parsed;
+            setProgress(70, "Building chart...");
           }
         } catch (_) {
           enriched = null;
@@ -1441,8 +1520,12 @@
       }
 
       if (!Array.isArray(enriched) || !enriched.length) {
-        const revenueMap = await fetch7dMap("dailyRevenue");
-        const feesMap = await fetch7dMap("dailyFees");
+        setProgress(25, "Fetching market data...");
+        const [revenueMap, feesMap] = await Promise.all([
+          fetch7dMap("dailyRevenue"),
+          fetch7dMap("dailyFees")
+        ]);
+        setProgress(45, "Processing protocols...");
         enriched = await Promise.all(PROJECTS.map(async (p) => {
           const out = await enrichWithFreeApi(p);
           const key = out.revenueSlug || out.slug;
@@ -1465,6 +1548,7 @@
         } catch (_) {
           // Ignore localStorage quota or privacy mode errors.
         }
+        setProgress(70, "Building chart...");
       }
 
       const withNetwork = enriched
@@ -1619,6 +1703,7 @@
       }
 
       let currentPoints = buildPlotPoints();
+      setProgress(82, "Loading logos...");
       const images = await Promise.all(pointsBase.map((p) => loadImage(p.logo)));
       const logoBySlug = new Map(pointsBase.map((p, i) => [p.slug, images[i]]));
       currentPoints = currentPoints.map((p) => ({ ...p, image: logoBySlug.get(p.slug) || null }));
@@ -2135,11 +2220,17 @@
       });
     })();
 
-    run().catch((err) => {
-      const msg = err && err.message ? err.message : String(err);
-      document.getElementById("notes").textContent = `JS error: ${msg}`;
-      console.error(err);
-    });
+    run()
+      .then(() => {
+        setProgress(100, "Ready");
+        setTimeout(hideLoader, 380);
+      })
+      .catch((err) => {
+        const msg = err && err.message ? err.message : String(err);
+        document.getElementById("notes").textContent = `JS error: ${msg}`;
+        console.error(err);
+        hideLoader();
+      });
   </script>
 </body>
 </html>
