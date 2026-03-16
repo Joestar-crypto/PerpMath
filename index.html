@@ -645,7 +645,8 @@
 
     .airdrop-select::after {
       content: "›";
-      margin-left: auto;
+      order: -1;
+      margin-right: 6px;
       color: rgba(0, 229, 160, 0.45);
       font-size: 18px;
       font-weight: 300;
@@ -653,7 +654,7 @@
     }
 
     .airdrop-item.active .airdrop-select::after {
-      transform: translateX(2px);
+      transform: rotate(90deg);
       color: var(--accent);
     }
 
@@ -2070,6 +2071,13 @@
 
         airdropList.appendChild(item);
       });
+
+      // Auto-expand the first item as an example
+      if (airdropEntries.length > 0) {
+        const firstEntry = airdropEntries[0];
+        const firstItem = airdropList.querySelector(`.airdrop-item[data-slug="${firstEntry.slug}"]`);
+        if (firstItem) selectAirdrop(firstEntry.slug, firstItem);
+      }
 
       function refreshAirdropProgressBars() {
         const now = new Date();
