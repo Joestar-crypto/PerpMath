@@ -37,7 +37,7 @@
   <meta name="twitter:image" content="https://perpmath.joestarcrypto.com/Twittercard.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
@@ -787,7 +787,7 @@
       }
 
       .site-title {
-        font-size: 19px;
+        font-size: 24px;
       }
 
       /* Stack: chart on top, side-panel below */
@@ -953,12 +953,13 @@
     }
 
     .site-title {
-      font-family: "Space Grotesk", sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      font-family: "Orbitron", "Space Grotesk", sans-serif;
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
       line-height: 1;
       user-select: none;
+      text-transform: uppercase;
     }
 
     .site-title .t-perp {
@@ -967,7 +968,7 @@
 
     .site-title .t-math {
       color: var(--accent);
-      text-shadow: 0 0 18px rgba(0, 229, 160, 0.45);
+      text-shadow: 0 0 28px rgba(0, 229, 160, 0.7), 0 0 60px rgba(0, 229, 160, 0.3);
     }
 
     .site-tagline {
@@ -1201,9 +1202,12 @@
   <main class="wrap">
     <div id="chartTooltip"></div>
     <header class="site-header">
-      <div>
-        <h1 class="site-title"><span class="t-perp">Perp</span><span class="t-math">Math</span></h1>
-        <p class="site-tagline">Perp DEX Valuation &amp; Airdrop Map</p>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="logo.png" alt="PerpMath logo" style="width:54px; height:54px; flex-shrink:0;" />
+        <div>
+          <h1 class="site-title"><span class="t-perp">Perp</span><span class="t-math">Math</span></h1>
+          <p class="site-tagline">Perp DEX Valuation &amp; Airdrop Map</p>
+        </div>
       </div>
       <div class="site-header-sep"></div>
     </header>
